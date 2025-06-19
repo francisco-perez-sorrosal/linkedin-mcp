@@ -285,3 +285,11 @@ TSWLatexianTemp*
 
 .env
 *.html
+
+**/__pycache__
+linkedin_job_*.html
+linkedin_jobs.txt
+linkedin_test_*.txt
+linkedin_test_*.html
+linkedin_test_*.jsonl
+linkedin_test_*.json
