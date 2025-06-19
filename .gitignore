@@ -284,3 +284,4 @@ TSWLatexianTemp*
 *.egg-info
 
 .env
+*.html

@@ -106,6 +106,13 @@ npx @modelcontextprotocol/inspector pixi run python src/linkedin_mcp_server/main
 
 This starts the inspector for the MCP Server.
 
+### Web scrapper
+
+```sh
+pixi run python src/linkedin_mcp_server/web_scrapper.py   
+```
+
+
 ## Development Tasks
 
 ### Run Tests
