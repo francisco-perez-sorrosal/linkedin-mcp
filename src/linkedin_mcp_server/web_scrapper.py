@@ -309,18 +309,17 @@ class JobPostingExtractor:
                 "source": "linkedin",
                 "scraped_at": datetime.now().isoformat(),
                 "title": "N/A",
-                "company": "N/A",
                 "location": "N/A",
-                "description": "N/A",
-                "description_html": "N/A",
+                "company": "N/A",
                 "posted_date": "N/A",
-                "job_type": "N/A",
+                "number_of_applicants": "N/A",  # Will store the number of applicants as a string
+                "raw_description": "N/A",
                 "employment_type": "N/A",
                 "seniority_level": "N/A",
                 "job_function": "N/A",
-                "industries": [],
-                "skills": [],
-                "company_details": {}
+                "industries": "N/A",
+                "skills": "N/A",
+                "company_details": "N/A"
             }
             
             # Extract job title
@@ -371,19 +370,41 @@ class JobPostingExtractor:
                     ))
                 )
                 
-                # Get the HTML content
-                html_content = desc_elem.get_attribute('outerHTML')
-                if html_content:
-                    job_details["description_html"] = html_content
-                    
-                    # Get clean text content
-                    text_content = desc_elem.text.strip()
-                    job_details["description"] = text_content
-                    
-                    logger.info(f"Extracted job description with {len(text_content)} characters")
+                # Get the raw description content (including HTML)
+                raw_description = desc_elem.get_attribute('outerHTML')
+                if not raw_description or len(raw_description.strip()) < 10:  # Fallback to inner HTML if outer is empty
+                    raw_description = desc_elem.get_attribute('innerHTML')
+                
+                if raw_description and len(raw_description.strip()) > 10:  # Ensure we have meaningful content
+                    job_details["raw_description"] = raw_description.strip()
+                    logger.info(f"Extracted raw job description with {len(raw_description)} characters")
+                else:
+                    logger.warning("Could not extract meaningful job description content")
                 
             except Exception as e:
                 logger.error(f"Failed to extract job description: {e}")
+            
+            # Extract number of applicants
+            try:
+                # Try to find the number of applicants in the top card
+                applicants_elem = self._driver.find_elements(
+                    By.CSS_SELECTOR,
+                    ".num-applicants__caption, " \
+                    "[data-tracking-control-name='public_jobs_topcard-applicant-count'], " \
+                    "figcaption.num-applicants__caption"
+                )
+                if applicants_elem:
+                    applicants_text = applicants_elem[0].text.strip().lower()
+                    # Extract numeric value from text like "Over 200 applicants" or "200+ applicants"
+                    import re
+                    match = re.search(r'(\d+\+?|over\s+\d+)', applicants_text)
+                    if match:
+                        num_applicants = match.group(1).replace('+', '').replace('over', '').strip()
+                        if num_applicants.isdigit():
+                            job_details["number_of_applicants"] = match.group(1).strip()
+                            logger.info(f"Found {match.group(1).strip()} applicants")
+            except Exception as e:
+                logger.warning(f"Could not extract number of applicants: {e}")
             
             # Extract job metadata (posted date, job type, etc.)
             try:
@@ -394,7 +415,9 @@ class JobPostingExtractor:
                     ".jobs-unified-top-card__job-insight, " \
                     ".job-flavors__label, " \
                     ".topcard__flavor--metadata, " \
-                    ".description__job-criteria-item"
+                    ".description__job-criteria-item, " \
+                    ".jobs-description-details__list-item, " \
+                    ".description__job-criteria"
                 )
                 
                 # Try to find the job criteria section (newer layout)
@@ -424,10 +447,13 @@ class JobPostingExtractor:
                                     job_details["seniority_level"] = value
                                 elif 'employment type' in label or 'job type' in label:
                                     job_details["employment_type"] = value
-                                elif 'function' in label:
-                                    job_details["job_function"] = value
-                                elif 'industr' in label:
-                                    job_details["industries"] = [i.strip() for i in value.split(',')]
+                                elif 'skill' in label.lower():
+                                    job_details["skills"] = str(value) if value is not None else "N/A"
+                                elif 'industr' in label.lower():
+                                    # Store industries as a single string
+                                    industries_text = value.strip()
+                                    job_details["industries"] = industries_text
+                                    logger.info(f"Extracted industries: {industries_text}")
                                 elif 'posted' in label and 'date' in label:
                                     job_details["posted_date"] = value
                                     
@@ -472,7 +498,7 @@ class JobPostingExtractor:
                         job_details["job_function"] = text
                     # Check for industries
                     elif len(text.split(',')) > 1:  # Likely industries
-                        job_details["industries"] = [i.strip() for i in text.split(',')]
+                        job_details["industries"] = str(text)
                 
                 logger.info(f"Extracted metadata: {job_details.get('employment_type')}, {job_details.get('seniority_level')}")
                 
@@ -487,12 +513,18 @@ class JobPostingExtractor:
                 )
                 
                 if skills_section:
-                    skill_elements = skills_section[0].find_elements(
-                        By.CSS_SELECTOR,
-                        "span.job-details-skill-match-status-list__pill-text"
-                    )
-                    job_details["skills"] = [s.text.strip() for s in skill_elements if s.text.strip()]
-                    logger.info(f"Extracted {len(job_details['skills'])} skills")
+                    try:
+                        skill_elems = self._driver.find_elements(
+                            By.CSS_SELECTOR,
+                            ".description__job-criteria-item--skills .description__job-criteria-text, " \
+                            ".job-details-skill-match-status-list__text"
+                        )
+                        if skill_elems:
+                            skills = ", ".join(elem.text.strip() for elem in skill_elems if elem.text.strip())
+                            job_details["skills"] = skills
+                            logger.info(f"Extracted skills: {skills}")
+                    except Exception as e:
+                        logger.warning(f"Could not extract skills: {e}")
                     
             except Exception as e:
                 logger.debug(f"No skills section found or error extracting skills: {e}")
@@ -505,7 +537,7 @@ class JobPostingExtractor:
                 )
                 
                 if company_section:
-                    company_details = {}
+                    company_details = []
                     
                     # Company size
                     size_elem = company_section[0].find_elements(
@@ -513,7 +545,9 @@ class JobPostingExtractor:
                         "[data-test='company-size']"
                     )
                     if size_elem:
-                        company_details["size"] = size_elem[0].text.strip()
+                        size_text = size_elem[0].text.strip()
+                        if size_text:
+                            company_details.append(f"Size: {size_text}")
                     
                     # Company website
                     website_elem = company_section[0].find_elements(
@@ -521,11 +555,14 @@ class JobPostingExtractor:
                         "a[data-test='company-website']"
                     )
                     if website_elem:
-                        company_details["website"] = website_elem[0].get_attribute('href')
+                        website = website_elem[0].get_attribute('href')
+                        if website:
+                            company_details.append(f"Website: {website}")
                     
-                    if company_details:
-                        job_details["company_details"] = company_details
-                        logger.info(f"Extracted company details: {company_details}")
+                    # Join all details with semicolons
+                    company_details_str = "; ".join(company_details) if company_details else "N/A"
+                    job_details["company_details"] = company_details_str
+                    logger.info(f"Extracted company details: {company_details_str}")
                         
             except Exception as e:
                 logger.debug(f"No company details section found or error extracting: {e}")
@@ -608,6 +645,8 @@ if __name__ == "__main__":
     # logger.info(f"Found {len(new_job_ids)} new jobs to process")
     
     test_job_url = JOB_URL.format(job_id="4024185558")
+    test_job_url = JOB_URL.format(job_id="4051266841")
+    test_job_url = JOB_URL.format(job_id="4153684130")
     logger.info(f"Testing job URL: {test_job_url}")
     extractor.extract_linkedin_job_description(test_job_url)
     
