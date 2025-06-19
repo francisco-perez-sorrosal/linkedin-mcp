@@ -97,18 +97,7 @@ class JobPostingExtractor:
         logger.info(f"Raw Description Cache initialized in {self._job_description_cache.cache_file}")
         
         # Perform login if credentials are provided
-        self._linkedin_login(*get_linkedin_credentials())
-        # self.username, self.password = get_linkedin_credentials()
-        # if self.username and self.password:
-        #     try:
-        #         self._linkedin_login(self.username, self.password)
-        #         logger.info(f"Logged into LinkedIn as {self.username}")
-        #     except Exception as e:
-        #         logger.error(f"Login failed: {e}")
-        #         raise e
-        # else:
-        #     logger.info("No LinkedIn credentials provided")
-        #     raise ValueError("LinkedIn credentials must be set in .env file")
+        # self._linkedin_login(*get_linkedin_credentials())
             
             
     def _setup_webdriver(self) -> Tuple[WebDriver, str]:
@@ -200,9 +189,7 @@ class JobPostingExtractor:
             raise
     
     
-    job_retrieve_url = "https://www.linkedin.com/jobs/search-results/?keywords=Looking%20for%20Research%20Enginer%2FMachine%20Learning%2FAI%20Engineer%20jobs%20in%20San%20Francisco"
-    job_retrieve_url = "https://www.linkedin.com/jobs/search?keywords=ai+engineer%2Fmachine+learning+research+engineer+in+san+francisco&location=United+States&geoId=103644278"
-    job_retrieve_url = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search-results/?distance=25&geoId=102277331&keywords=Looking%20for%20Research%20Enginer%2FMachine%20Learning%2FAI%20Engineer%20jobs%20in%20San%20Francisco&start={}"
+    JOB_RETRIEVAL_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search-results/?distance=25&geoId=102277331&keywords=Looking%20for%20Research%20Enginer%2FMachine%20Learning%2FAI%20Engineer%20jobs%20in%20San%20Francisco&start={}"
     
     job_url = "https://www.linkedin.com/jobs/view/{job_id}/"
     
@@ -255,7 +242,7 @@ class JobPostingExtractor:
             return []
     
     
-    async def scrape_job_listings(self, url: str, max_pages: int = 30) -> List[str]:
+    async def scrape_job_listings(self, url: str, max_pages: int = 5, jobs_per_page: int = 10) -> List[str]:
         """
         Extract job IDs from LinkedIn job search results using requests+BeautifulSoup.
         Looks for job IDs in data-entity-urn attributes with format urn:li:jobPosting:4250736028.
@@ -268,8 +255,8 @@ class JobPostingExtractor:
             List of unique job IDs found across all pages
         """
 
-        # Create tasks for all pages
-        tasks = [self.scrape_job_listings_page(url, i * 10) for i in range(max_pages)]
+        # Create scrapping tasks for all pages (each page contains 10 jobs in the JOB_RETRIEVAL_URL above)
+        tasks = [self.scrape_job_listings_page(url, i * jobs_per_page) for i in range(max_pages)]
         
         # Run all tasks concurrently
         results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -291,10 +278,15 @@ class JobPostingExtractor:
         """
         Retrieve job IDs from LinkedIn asynchronously.
         This method starts the scraping in the background and returns immediately.
+        
+        Returns:
+            List of job IDs found during scraping
         """
-        logger.info(f"Starting async job retrieval from LinkedIn {self.job_retrieve_url}")
-        all_jobs = asyncio.run(self.scrape_job_listings(self.job_retrieve_url))
-        logger.info(f"Scraped {len(all_jobs)} jobs")
+        logger.info(f"Starting async job retrieval from LinkedIn\n({self.JOB_RETRIEVAL_URL})")
+        start_time = time.time()        
+        all_jobs = asyncio.run(self.scrape_job_listings(self.JOB_RETRIEVAL_URL))        
+        duration = time.time() - start_time
+        logger.info(f"Scraped {len(all_jobs)} jobs in {duration:.2f} seconds")
         return all_jobs
 
 
@@ -463,11 +455,41 @@ class JobPostingExtractor:
         
         return self.extract_linkedin_job_description(url, *get_linkedin_credentials()), False
 
+    def get_scraped_job_ids(self) -> List[str]:
+        """Get a list of all job IDs that have already been scraped."""
+        return list(self._job_description_cache._cache.keys())
+    
+    def get_new_job_ids(self, job_ids: List[str]) -> List[str]:
+        """
+        Filter out job IDs that have already been scraped.
+        
+        Args:
+            job_ids: List of job IDs to check
+            
+        Returns:
+            List of job IDs that haven't been scraped yet
+        """            
+        scraped_ids = set(self.get_scraped_job_ids())
+        new_job_ids = [job_id for job_id in job_ids if job_id not in scraped_ids]
+        
+        logger.info(f"Found {len(new_job_ids)} new jobs out of {len(job_ids)} total")
+        return new_job_ids
 
 if __name__ == "__main__":
-    url = "https://www.linkedin.com/jobs/collections/recommended/?currentJobId=3959722886"
-    url = "https://www.linkedin.com/jobs/collections/recommended/?currentJobId=4070067137"
-    
     extractor = JobPostingExtractor()
-    job_ids = extractor.retrieve_job_ids_from_linkedin()
-    # job_details = extractor.extract_raw_info_from(url)
+    
+    # Get all job IDs from LinkedIn
+    logger.info("Fetching job listings from LinkedIn...")
+    all_job_ids = extractor.retrieve_job_ids_from_linkedin()
+    
+    # Find only the new job IDs we haven't scraped yet
+    new_job_ids = extractor.get_new_job_ids(all_job_ids)
+    
+    logger.info(f"Found {len(new_job_ids)} new jobs to process")
+    
+    # if new_job_ids:
+    #     logger.info(f"Found {len(new_job_ids)} new jobs to process")
+    #     # Process only the new jobs
+    #     # extractor.extract_raw_job_data(new_job_ids)
+    # else:
+    #     logger.info("No new jobs found to process")
