@@ -68,7 +68,8 @@ class JobPostingExtractor:
             self._job_description_cache = BasicInMemoryCache("linkedin-mcp", 
                                                             "raw_job_description_cache", 
                                                             "raw_job_descriptions.jsonl",
-                                                            cache_key_name=self.linkedin_cache_key_name)
+                                                            cache_key_name=self.linkedin_cache_key_name,
+                                                            base_cache_dir="~/.cache")
         logger.info(f"Raw Description Cache initialized in {self._job_description_cache.cache_file}")
             
             
@@ -165,7 +166,7 @@ class JobPostingExtractor:
         return all_jobs
 
 
-    def extract_linkedin_job_description(self, url: str) -> Dict[str, Any]:
+    async def extract_linkedin_job_description(self, url: str) -> Dict[str, Any]:
         """
         Extract job description and metadata from LinkedIn job posting
         
@@ -179,7 +180,8 @@ class JobPostingExtractor:
             logger.error("WebDriver is not initialized")
             return {}
             
-        try:            
+        try:
+            start_time = time.time()
             self._driver.get(url)
             logger.info(f"Navigated to {url}")
             
@@ -458,7 +460,9 @@ class JobPostingExtractor:
                     self._job_description_cache.put(job_details)
                 except Exception as e:
                     logger.warning(f"Failed to cache job details: {e}")
-                
+                            
+            duration = time.time() - start_time
+            logger.info(f"Extracted job description for {job_details.get('linkedin_job_id')} in {duration:.2f} seconds")
             return job_details
             
         except Exception as e:
@@ -507,10 +511,28 @@ class JobPostingExtractor:
         return new_job_ids
 
 
+    async def scrape_job_metadata(self, job_ids: List[str]) -> List[Dict[str, Any]]:
+        logger.info(f"Scraping {len(job_ids)} job IDs")
+
+        tasks = [self.extract_linkedin_job_description(JOB_URL.format(job_id=job_id)) for job_id in job_ids]
+        results = await asyncio.gather(*tasks)
+        return results
+
+
+    def scrape_new_job_ids(self, new_job_ids: List[str], overwrite_cache_entries: bool = False) -> None:
+        logger.info(f"Scraping new LinkedIn {len(new_job_ids)} job IDs")
+        start_time = time.time()        
+        all_jobs = asyncio.run(self.scrape_job_metadata(new_job_ids))        
+        duration = time.time() - start_time
+        logger.info(f"Scraped {len(all_jobs)} job metadata in {duration:.2f} seconds")
+        
+        # Save to cache
+        for job in all_jobs:
+            self._job_description_cache.put(job, overwrite=overwrite_cache_entries)
+
+
 # These two URL are the best ones to retrieve jobs without connecting to LinkedIn with your account
 JOB_RETRIEVAL_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search-results/?distance=25&geoId=102277331&keywords=Looking%20for%20Research%20Enginer%2FMachine%20Learning%2FAI%20Engineer%20jobs%20in%20San%20Francisco&start={}"
-
-# job_url = "https://www.linkedin.com/jobs/view/{job_id}/"
 JOB_URL: str = "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{job_id}"
 
 
@@ -519,22 +541,16 @@ if __name__ == "__main__":
     
     # Get all job IDs from LinkedIn
     logger.info("Fetching job listings from LinkedIn...")
-    # all_job_ids = extractor.retrieve_job_ids_from_linkedin(max_pages=3)
+    all_job_ids = extractor.retrieve_job_ids_from_linkedin(max_pages=1)
     
-    # # Find only the new job IDs we haven't scraped yet
-    # new_job_ids = extractor.get_new_job_ids(all_job_ids)
+    # Find only the new job IDs we haven't scraped yet
+    new_job_ids = extractor.get_new_job_ids(all_job_ids)
     
-    # logger.info(f"Found {len(new_job_ids)} new jobs to process")
+    logger.info(f"Found {len(new_job_ids)} new jobs to process")
     
-    test_job_url = JOB_URL.format(job_id="4024185558")
-    test_job_url = JOB_URL.format(job_id="4051266841")
-    test_job_url = JOB_URL.format(job_id="4051266841")
-    logger.info(f"Testing job URL: {test_job_url}")
-    extractor.extract_linkedin_job_description(test_job_url)
+    # test_job_url = JOB_URL.format(job_id="4024185558")
+    # test_job_url = JOB_URL.format(job_id="4051266841")
+    # test_job_url = JOB_URL.format(job_id="4051266841")
     
-    # if new_job_ids:
-    #     logger.info(f"Found {len(new_job_ids)} new jobs to process")
-    #     # Process only the new jobs
-    #     # extractor.extract_raw_job_data(new_job_ids)
-    # else:
-    #     logger.info("No new jobs found to process")
+    # new_job_ids = ["4024185558"] #, "4051266841", "4051266841"]
+    extractor.scrape_new_job_ids(new_job_ids)

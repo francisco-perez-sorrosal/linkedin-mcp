@@ -47,6 +47,8 @@ class BasicInMemoryCache:
         # Cache file path
         self.cache_file = self.cache_dir / cache_file
         
+        logger.info(f"Cache initialized in {self.cache_file}")
+        
         # In-memory cache for faster lookups
         self._cache: dict[str, Any] = self._load_cache()
 
