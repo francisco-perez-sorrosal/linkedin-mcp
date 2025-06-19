@@ -283,140 +283,267 @@ class JobPostingExtractor:
         return all_jobs
 
 
-    def extract_linkedin_job_description(self, url: str) -> Dict[str, str]:
+    def extract_linkedin_job_description(self, url: str) -> Dict[str, Any]:
         """
-        Extract job description from LinkedIn job posting with caching
+        Extract job description and metadata from LinkedIn job posting
         
         Args:
             url (str): LinkedIn job posting URL
-        
+            
         Returns:
             Dict containing job details or empty dict if extraction fails
         """
+        if self._driver is None:
+            logger.error("WebDriver is not initialized")
+            return {}
+            
         try:            
             self._driver.get(url)
             logger.info(f"Navigated to {url}")
             
-            # Wait for the page to load
-            WebDriverWait(self._driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, ".top-card-layout__title, .job-details-jobs-unified-top-card__job-title"))
-            )
-            
-            # Initialize job details with default values
+            # Initialize job details with default values and URL
+            job_id = url.strip('/').split('/')[-1]
             job_details = {
-                self.linkedin_cache_key_name: url.split("/")[-1],
+                self.linkedin_cache_key_name: job_id,
+                "url": url,
+                "source": "linkedin",
+                "scraped_at": datetime.now().isoformat(),
                 "title": "N/A",
                 "company": "N/A",
                 "location": "N/A",
-                "employment_type": "N/A",
-                "workplace_type": "N/A",
                 "description": "N/A",
+                "description_html": "N/A",
                 "posted_date": "N/A",
-                "applicants": "N/A",
+                "job_type": "N/A",
+                "employment_type": "N/A",
                 "seniority_level": "N/A",
                 "job_function": "N/A",
-                "industries": "N/A"
+                "industries": [],
+                "skills": [],
+                "company_details": {}
             }
             
             # Extract job title
             try:
                 title_elem = self._driver.find_element(
-                    By.CSS_SELECTOR, 
-                    ".top-card-layout__title, .job-details-jobs-unified-top-card__job-title"
+                    By.CSS_SELECTOR,
+                    ".top-card-layout__title, .topcard__title"
                 )
                 job_details["title"] = title_elem.text.strip()
+                logger.info(f"Extracted job title: {job_details['title']}")
             except Exception as e:
                 logger.error(f"Failed to extract job title: {e}")
             
-            # Extract company name
+            # Extract company name and URL
             try:
                 company_elem = self._driver.find_element(
                     By.CSS_SELECTOR,
-                    "a.topcard__org-name-link, .job-details-jobs-unified-top-card__company-name a"
+                    "a.topcard__org-name-link, .topcard__flavor--black-link"
                 )
                 job_details["company"] = company_elem.text.strip()
+                company_url = company_elem.get_attribute('href')
+                if company_url:
+                    job_details["company_url"] = company_url.split('?')[0]  # Remove tracking params
+                logger.info(f"Extracted company: {job_details['company']}")
             except Exception as e:
                 logger.error(f"Failed to extract company name: {e}")
-                
+            
             # Extract location
             try:
                 location_elem = self._driver.find_element(
                     By.CSS_SELECTOR,
-                    ".topcard__flavor--bullet, .job-details-jobs-unified-top-card__bullet"
+                    ".topcard__flavor--bullet, .topcard__flavor:not(.topcard__flavor--black-link)"
                 )
                 job_details["location"] = location_elem.text.strip()
+                logger.info(f"Extracted location: {job_details['location']}")
             except Exception as e:
                 logger.error(f"Failed to extract location: {e}")
                 
-            # Extract job description
+            # Extract job description HTML and text
             try:
-                # First try the main content area
-                desc_elem = self._driver.find_element(
-                    By.CSS_SELECTOR,
-                    ".description__text .show-more-less-html__markup, " \
-                    ".jobs-box__html-content, .jobs-description-content__text"
+                # Get the full description HTML
+                desc_elem = WebDriverWait(self._driver, 10).until(
+                    EC.presence_of_element_located((
+                        By.CSS_SELECTOR,
+                        ".show-more-less-html__markup, " \
+                        ".description__text, " \
+                        ".jobs-box__html-content"
+                    ))
                 )
-                html_content = desc_elem.get_attribute('innerHTML')
-                job_details["description"] = html_content.strip() if html_content else ""
+                
+                # Get the HTML content
+                html_content = desc_elem.get_attribute('outerHTML')
+                if html_content:
+                    job_details["description_html"] = html_content
+                    
+                    # Get clean text content
+                    text_content = desc_elem.text.strip()
+                    job_details["description"] = text_content
+                    
+                    logger.info(f"Extracted job description with {len(text_content)} characters")
+                
             except Exception as e:
                 logger.error(f"Failed to extract job description: {e}")
-                try:
-                    # Fallback to any element with the job description class
-                    desc_elem = self._driver.find_element(
-                        By.CLASS_NAME,
-                        "jobs-description__content"
-                    )
-                    job_details["description"] = desc_elem.text.strip()
-                except Exception as e:
-                    logger.error(f"Failed to extract job description (fallback): {e}")
             
-            # Extract additional job details
+            # Extract job metadata (posted date, job type, etc.)
             try:
-                # Look for details in the job criteria section
-                criteria_items = self._driver.find_elements(
+                # First try to extract from the top card (newer layout)
+                meta_items = self._driver.find_elements(
                     By.CSS_SELECTOR,
+                    ".posted-time-ago__text, " \
+                    ".jobs-unified-top-card__job-insight, " \
+                    ".job-flavors__label, " \
+                    ".topcard__flavor--metadata, " \
                     ".description__job-criteria-item"
                 )
                 
-                for item in criteria_items:
-                    try:
-                        label = item.find_element(By.CSS_SELECTOR, ".description__job-criteria-subheader").text.strip()
-                        value = item.find_element(By.CSS_SELECTOR, ".description__job-criteria-text").text.strip()
+                # Try to find the job criteria section (newer layout)
+                try:
+                    criteria_section = self._driver.find_element(
+                        By.CSS_SELECTOR, ".description__job-criteria"
+                    )
+                    criteria_items = criteria_section.find_elements(
+                        By.CSS_SELECTOR, ".description__job-criteria-item"
+                    )
+                    for item in criteria_items:
+                        try:
+                            label_elem = item.find_element(
+                                By.CSS_SELECTOR, 
+                                ".description__job-criteria-subheader"
+                            )
+                            value_elem = item.find_element(
+                                By.CSS_SELECTOR,
+                                ".description__job-criteria-text"
+                            )
+                            
+                            if label_elem and value_elem:
+                                label = label_elem.text.strip().lower()
+                                value = value_elem.text.strip()
+                                
+                                if 'seniority' in label or 'level' in label:
+                                    job_details["seniority_level"] = value
+                                elif 'employment type' in label or 'job type' in label:
+                                    job_details["employment_type"] = value
+                                elif 'function' in label:
+                                    job_details["job_function"] = value
+                                elif 'industr' in label:
+                                    job_details["industries"] = [i.strip() for i in value.split(',')]
+                                elif 'posted' in label and 'date' in label:
+                                    job_details["posted_date"] = value
+                                    
+                        except Exception as e:
+                            logger.debug(f"Error extracting criteria item: {e}")
+                            continue
+                except Exception as e:
+                    logger.debug(f"Could not find job criteria section: {e}")
+                
+                # Process any additional metadata from the top card
+                for item in meta_items:
+                    text = item.text.strip().lower()
+                    if not text:
+                        continue
                         
-                        if 'seniority level' in label.lower():
-                            job_details["seniority_level"] = value
-                        elif 'employment type' in label.lower():
-                            job_details["employment_type"] = value
-                        elif 'job function' in label.lower():
-                            job_details["job_function"] = value
-                        elif 'industries' in label.lower():
-                            job_details["industries"] = value
-                    except Exception as e:
-                        logger.error(f"Failed to extract job criteria: {e}")
+                    # Extract posted date if we haven't found it yet
+                    if not job_details.get("posted_date") or job_details["posted_date"] == "N/A":
+                        if any(x in text for x in ['day', 'week', 'month', 'year', 'hour', 'minute', 'second', 'just now']):
+                            job_details["posted_date"] = item.text.strip()
+                            continue
+                            
+                    # Try to extract employment type if not found yet
+                    if not job_details.get("employment_type") or job_details["employment_type"] == "N/A":
+                        if any(x in text for x in ['full-time', 'part-time', 'contract', 'temporary', 'internship', 'apprenticeship']):
+                            job_details["employment_type"] = item.text.strip()
+                            continue
+                            
+                    # Try to extract seniority level if not found yet
+                    if not job_details.get("seniority_level") or job_details["seniority_level"] == "N/A":
+                        if any(x in text for x in ['entry', 'associate', 'mid', 'senior', 'lead', 'principal', 'director', 'vp', 'c-level', 'executive']):
+                            job_details["seniority_level"] = item.text.strip()
+                            continue
+                        
+                    # Check for employment type
+                    if any(term in text for term in ['full-time', 'part-time', 'contract', 'internship', 'temporary']):
+                        job_details["employment_type"] = text
+                    # Check for seniority level
+                    elif any(term in text for term in ['entry', 'associate', 'mid-senior', 'director', 'executive']):
+                        job_details["seniority_level"] = text
+                    # Check for job function
+                    elif any(term in text for term in ['engineering', 'product', 'design', 'marketing', 'sales']):
+                        job_details["job_function"] = text
+                    # Check for industries
+                    elif len(text.split(',')) > 1:  # Likely industries
+                        job_details["industries"] = [i.strip() for i in text.split(',')]
+                
+                logger.info(f"Extracted metadata: {job_details.get('employment_type')}, {job_details.get('seniority_level')}")
+                
             except Exception as e:
-                logger.error(f"Failed to find job criteria section: {e}")
+                logger.error(f"Failed to extract metadata: {e}")
             
-            # Extract posted date and applicants if available
+            # Extract skills if available
             try:
-                meta_info = self._driver.find_elements(
+                skills_section = self._driver.find_elements(
                     By.CSS_SELECTOR,
-                    ".posted-time-ago__text, .jobs-unified-top-card__job-insight"
+                    ".job-details-skill-match-status-list"
                 )
-                logger.info(meta_info[0].text)
-                logger.info(meta_info[1].text)
-                if len(meta_info) > 0:
-                    job_details["posted_date"] = meta_info[0].text.strip()
-                if len(meta_info) > 1:
-                    job_details["applicants"] = meta_info[1].text.strip()
+                
+                if skills_section:
+                    skill_elements = skills_section[0].find_elements(
+                        By.CSS_SELECTOR,
+                        "span.job-details-skill-match-status-list__pill-text"
+                    )
+                    job_details["skills"] = [s.text.strip() for s in skill_elements if s.text.strip()]
+                    logger.info(f"Extracted {len(job_details['skills'])} skills")
+                    
             except Exception as e:
-                logger.error(f"Failed to extract meta information: {e}")
+                logger.debug(f"No skills section found or error extracting skills: {e}")
+            
+            # Extract company details if available
+            try:
+                company_section = self._driver.find_elements(
+                    By.CSS_SELECTOR,
+                    ".company-info"
+                )
+                
+                if company_section:
+                    company_details = {}
+                    
+                    # Company size
+                    size_elem = company_section[0].find_elements(
+                        By.CSS_SELECTOR,
+                        "[data-test='company-size']"
+                    )
+                    if size_elem:
+                        company_details["size"] = size_elem[0].text.strip()
+                    
+                    # Company website
+                    website_elem = company_section[0].find_elements(
+                        By.CSS_SELECTOR,
+                        "a[data-test='company-website']"
+                    )
+                    if website_elem:
+                        company_details["website"] = website_elem[0].get_attribute('href')
+                    
+                    if company_details:
+                        job_details["company_details"] = company_details
+                        logger.info(f"Extracted company details: {company_details}")
+                        
+            except Exception as e:
+                logger.debug(f"No company details section found or error extracting: {e}")
             
             logger.info(f"Successfully extracted job details for: {job_details.get('title', 'N/A')} at {job_details.get('company', 'N/A')}")
-            logger.info(job_details)
+            logger.debug(f"Job details: {job_details}")
+            
+            # Save to cache if cache is enabled
+            if hasattr(self, '_job_description_cache') and self._job_description_cache is not None:
+                try:
+                    self._job_description_cache.put(job_details)
+                except Exception as e:
+                    logger.warning(f"Failed to cache job details: {e}")
+                
             return job_details
             
         except Exception as e:
-            logger.error(f"Error extracting job description from {url}: {e}")
+            logger.error(f"Error extracting job description from {url}: {str(e)}", exc_info=True)
             return {}
             
     def extract_raw_info_from(self, url: str) -> Tuple[Dict[str, str], bool]:
@@ -436,7 +563,7 @@ class JobPostingExtractor:
             logger.info(f"Retrieved job description from cache: {url}")
             return cached_job, True
         
-        return self.extract_linkedin_job_description(url, *get_linkedin_credentials()), False
+        return self.extract_linkedin_job_description(url), False
 
     def get_scraped_job_ids(self) -> List[str]:
         """Get a list of all job IDs that have already been scraped."""
@@ -480,7 +607,7 @@ if __name__ == "__main__":
     
     # logger.info(f"Found {len(new_job_ids)} new jobs to process")
     
-    test_job_url = JOB_URL.format(job_id="4051266841")
+    test_job_url = JOB_URL.format(job_id="4024185558")
     logger.info(f"Testing job URL: {test_job_url}")
     extractor.extract_linkedin_job_description(test_job_url)
     

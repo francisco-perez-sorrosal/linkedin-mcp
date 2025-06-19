@@ -1,0 +1,842 @@
+
+<!-- saved from url=(0066)https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/4051266841 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head><body><section class="top-card-layout container-lined overflow-hidden babybear:rounded-[0px]">
+        
+      
+
+      <div class="top-card-layout__card relative p-2 papabear:p-details-container-padding">
+            
+        
+      <a href="https://www.linkedin.com/company/doordash?trk=public_jobs_topcard_logo" target="_self" data-tracking-control-name="public_jobs_topcard_logo" data-tracking-will-navigate="">
+        
+          
+      <img class="artdeco-entity-image artdeco-entity-image--square-5
+          " data-delayed-url="https://media.licdn.com/dms/image/v2/D4E0BAQFbAtJ4Rl0SEg/company-logo_100_100/B4EZa2Dj_dHkAQ-/0/1746811109671/doordash_logo?e=1755734400&amp;v=beta&amp;t=wtC7mptigybml67VfS65Enij1OiT4SL4wxJCeCTZ7MQ" data-ghost-classes="artdeco-entity-image--ghost" data-ghost-url="https://static.licdn.com/aero-v1/sc/h/aajlclc14rr2scznz5qm2rj9u" alt="DoorDash">
+  
+        
+      </a>
+  
+      
+
+          <div class="top-card-layout__entity-info-container flex flex-wrap papabear:flex-nowrap">
+            <div class="top-card-layout__entity-info flex-grow flex-shrink-0 basis-0 babybear:flex-none babybear:w-full babybear:flex-none babybear:w-full">
+                  
+          <a href="https://www.linkedin.com/jobs/view/machine-learning-engineer-computer-vision-at-doordash-4051266841?trk=public_jobs_topcard-title" data-tracking-control-name="public_jobs_topcard-title" class="topcard__link" data-tracking-will-navigate="">
+            <h2 class="top-card-layout__title font-sans text-lg papabear:text-xl font-bold leading-open text-color-text mb-0 topcard__title">Machine Learning Engineer, Computer Vision</h2>
+          </a>
+      
+<!---->
+<!---->
+                <h4 class="top-card-layout__second-subline font-sans text-sm leading-open text-color-text-low-emphasis mt-0.5">
+                  
+        <div class="topcard__flavor-row">
+          <span class="topcard__flavor">
+              <a class="topcard__org-name-link topcard__flavor--black-link" data-tracking-control-name="public_jobs_topcard-org-name" data-tracking-will-navigate="" href="https://www.linkedin.com/company/doordash?trk=public_jobs_topcard-org-name" rel="noopener" target="_blank">
+                DoorDash
+              </a>
+          </span>
+            <span class="topcard__flavor topcard__flavor--bullet">
+              San Francisco, CA
+            </span>
+        </div>
+        <div class="topcard__flavor-row">
+          
+        <span class="posted-time-ago__text topcard__flavor--metadata">
+          
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+      1 day ago
+  
+        </span>
+  
+          
+    
+    
+    
+
+        <figure class="num-applicants__figure topcard__flavor--metadata topcard__flavor--bullet">
+          <span class="num-applicants__icon num-applicants__icon--notify-pebble lazy-load"></span>
+          <figcaption class="num-applicants__caption">
+            Over 200 applicants
+          </figcaption>
+        </figure>
+  
+        </div>
+          
+    
+
+    
+      
+    
+      <a href="https://www.linkedin.com/login?session_redirect=https%3A%2F%2Fwww%2Elinkedin%2Ecom%2Fsearch%2Fresults%2Fpeople%2F%3FfacetCurrentCompany%3D3205573&amp;emailAddress=&amp;fromSignIn=&amp;trk=public_jobs_see-who-was-hired_people-search-link_face-pile-cta" target="_self" data-tracking-control-name="full-link" data-tracking-will-navigate="" class="face-pile flex !no-underline see-who-was-hired">
+        
+      <div class="face-pile__images-container self-start flex-shrink-0 mr-1 leading-[1]">
+          
+      <img class="inline-block relative
+          rounded-[50%]
+          w-4 h-4
+           face-pile__image border-1 border-solid border-color-transparent -ml-2 first:ml-0" data-delayed-url="https://static.licdn.com/aero-v1/sc/h/d8v9zft2fwbitet7g0b7zm5jn" data-ghost-classes="bg-color-entity-ghost-background" data-ghost-url="https://static.licdn.com/aero-v1/sc/h/9c8pery4andzj6ohjkjp54ma2" alt="">
+      
+          
+      <img class="inline-block relative
+          rounded-[50%]
+          w-4 h-4
+           face-pile__image border-1 border-solid border-color-transparent -ml-2 first:ml-0" data-delayed-url="https://static.licdn.com/aero-v1/sc/h/57vqgfov997uimtaajik76xfr" data-ghost-classes="bg-color-entity-ghost-background" data-ghost-url="https://static.licdn.com/aero-v1/sc/h/9c8pery4andzj6ohjkjp54ma2" alt="">
+      
+          
+      <img class="inline-block relative
+          rounded-[50%]
+          w-4 h-4
+           face-pile__image border-1 border-solid border-color-transparent -ml-2 first:ml-0" data-delayed-url="https://static.licdn.com/aero-v1/sc/h/1r5y4gyavxb048v7fvnl06mjs" data-ghost-classes="bg-color-entity-ghost-background" data-ghost-url="https://static.licdn.com/aero-v1/sc/h/9c8pery4andzj6ohjkjp54ma2" alt="">
+      
+      </div>
+        <p class="face-pile__text self-center font-sans text-sm
+            link-styled hover:underline">
+          See who DoorDash has hired for this role
+        </p>
+          
+      </a>
+  
+  
+  
+  
+<!---->      
+                </h4>
+
+              <div class="top-card-layout__cta-container flex flex-wrap mt-0.5 papabear:mt-0 ml-[-12px]">
+                    
+          
+    
+
+      
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    <code id="applyUrl" style="display: none"><!--"https://www.linkedin.com/jobs/view/externalApply/4051266841?url=https%3A%2F%2Fjob-boards%2Egreenhouse%2Eio%2Fdoordashusa%2Fjobs%2F6333591&urlHash=ueFp"--></code>
+    <button class="sign-up-modal__outlet top-card-layout__cta mt-2 ml-1.5 h-auto babybear:flex-auto top-card-layout__cta--primary btn-md btn-primary" data-modal="sign-up-modal-outlet" data-impression-id="public_jobs_apply-link-offsite_sign-up-modal" data-tracking-control-name="public_jobs_apply-link-offsite_sign-up-modal">
+      Apply
+      <icon data-svg-class-name="apply-button__offsite-apply-icon-svg" data-delayed-url="https://static.licdn.com/aero-v1/sc/h/23svd9ojlfrax9l62f8xc1zi6"></icon>
+    </button>
+    
+
+    
+    <div class="">
+<!---->
+      <div id="sign-up-modal" class="modal sign-up-modal " data-outlet="sign-up-modal-outlet">
+<!---->        <div class="modal__overlay flex items-center bg-color-background-scrim justify-center fixed bottom-0 left-0 right-0 top-0 opacity-0 invisible pointer-events-none z-[1000] transition-[opacity] ease-[cubic-bezier(0.25,0.1,0.25,1.0)] duration-[0.17s]
+            py-4
+            " aria-hidden="true">
+          <section aria-modal="true" role="dialog" aria-labelledby="sign-up-modal-modal-header" tabindex="-1" class="max-h-full modal__wrapper overflow-auto p-0 bg-color-surface max-w-[1128px] min-h-[160px] relative scale-[0.25] shadow-sm shadow-color-border-faint transition-[transform] ease-[cubic-bezier(0.25,0.1,0.25,1.0)] duration-[0.33s] focus:outline-0
+               modal__wrapper--with-footer flex flex-col
+              w-[552px] babybear:w-[360px]
+              
+              rounded-md">
+              <header class="modal__header flex items-center justify-between py-1.5 px-3
+                  ">
+                  <h2 id="sign-up-modal-modal-header" class="modal__title font-normal leading-open text-color-text text-lg"></h2>
+                  <button class="modal__dismiss modal__dismiss--with-icon btn-tertiary h-[40px] w-[40px] p-0 rounded-full indent-0
+                      " aria-label="Dismiss" data-tracking-control-name="public_jobs_apply-link-offsite_sign-up-modal_modal_dismiss" type="button">
+                      <icon class="modal__dismiss-icon relative top-[2px]" data-delayed-url="https://static.licdn.com/aero-v1/sc/h/gs508lg3t2o81tq7pmcgn6m2"></icon>
+                  </button>
+<!---->              </header>
+            <div class="modal__main w-full flex-1">
+              
+        
+    <div class="loader loader--absolute">
+      <div class="loader__container mb-2 overflow-hidden">
+        <icon class="loader__icon inline-block loader__icon--muted text-color-icon-active" data-delayed-url="https://static.licdn.com/aero-v1/sc/h/ddi43qwelxeqjxdd45pe3fvs1" data-svg-class-name="loader__icon-svg--small fill-currentColor h-[30px] min-h-[30px] w-[30px] min-w-[30px]"></icon>
+      </div>
+    </div>
+  
+        <code id="registrationUrl" style="display: none"><!--"https://www.linkedin.com/signup/api/cors/createAccount?trk=public_jobs_apply-link-offsite_sign_up_modal"--></code>
+        <code id="i18nBtnTextAgree" style="display: none"><!--"Agree & Join"--></code>
+        <code id="i18nBtnTextContinue" style="display: none"><!--"Continue"--></code>
+        <code id="redirectOnModalClose" style="display: none"><!--true--></code>
+        <div class="sign-up-modal__body">
+          
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    <code id="dust-var-fpLixTreatment" style="display: none"><!--""--></code>
+    <code id="dust-var-pemDegradationTrackingTreatment" style="display: none"><!--""--></code>
+    <code id="dust-var-isMobile" style="display: none"><!--false--></code>
+
+    <code id="dust-var-isSplitJoinForm" style="display: none"><!--true--></code>
+    <code id="i18n_continue" style="display: none"><!--"Continue"--></code>
+
+    <code id="dust-var-cancelOnboardingRedirect" style="display: none"><!--false--></code>
+    <code id="dust-var-postOnboardingRedirectUrl" style="display: none"><!--"https://www.linkedin.com/jobs/view/machine-learning-engineer-computer-vision-at-doordash-4051266841"--></code>
+    <code id="dust-var-source" style="display: none"><!--""--></code>
+
+    <code id="dust-var-isInlineError" style="display: none"><!--false--></code>
+
+    <code id="dust-var-hasShowPassword" style="display: none"><!--false--></code>
+
+    <code id="dust-var-invitationId" style="display: none"><!--""--></code>
+    <code id="dust-var-sharedKey" style="display: none"><!--""--></code>
+
+    <code id="dust-var-sendConfirmationEmail" style="display: none"><!--true--></code>
+
+    <code id="dust-var-isInstantThirdPartyBtnEnabled" style="display: none"><!--"true"--></code>
+
+    <code id="dust-var-hasMultipleSocialJoin" style="display: none"><!--false--></code>
+
+    <code id="dust-var-isTimeStoneIntegrationEnabled" style="display: none"><!--false--></code>
+
+    <code id="dust-var-useGoogleGSI" style="display: none"><!--"true"--></code>
+    <code id="dust-var-loginCsrfParam" style="display: none"><!--"57ae908e-1b9c-43e9-8bd0-b9819a5c8ae3"--></code>
+    <code id="dust-var-shouldShowKoreaConsent" style="display: none"><!--false--></code>
+
+    <code id="dust-var-apfcDf" style="display: none"><!--""--></code>
+    <code id="apfcDfPK" style="display: none"><!--""--></code>
+    <code id="apfcDfPKV" style="display: none"><!---1--></code>
+
+    <code id="shouldSignInOnDuplicateAccount" style="display: none"><!--false--></code>
+    <code id="signInOnDuplicateAccountUrl" style="display: none"><!--"/checkpoint/lg/login-submit"--></code>
+
+    <code id="trackingPrefix" style="display: none"><!--"public_jobs_apply-link-offsite_sign_up_modal"--></code>
+
+<!---->
+    <code id="dust-var-shouldShowPasswordFieldOnEmailPhoneInput" style="display: none"><!--false--></code>
+    <code id="isCorpNetwork" style="display: none"><!--"false"--></code>
+    <code id="dust-var-nameInferenceTreatment" style="display: none"><!--"control"--></code>
+    <code id="dust-var-isCaptchaChallengePrefetchEnabled" style="display: none"><!--false--></code>
+    <code id="dust-var-shouldIgnoreGoogleOneTapInstanceError" style="display: none"><!--false--></code>
+
+    <form class="join-form" action="https://www.linkedin.com/signup/api/cors/createAccount" method="post">
+        
+              <h4 class="sign-up-modal__header"><strong>Join or sign in to find your next job</strong></h4>
+              <p class="sign-up-modal__sub-header">Join to apply for the <strong>Machine Learning Engineer, Computer Vision</strong> role at <strong>DoorDash</strong></p>
+            
+
+          <div class="profile-card hidden">
+            <div class="profile-card__content">
+              <img class="profile-card__photo" alt="Profile photo">
+              <button class="profile-card__edit-icon" aria-label="Edit profile photo" data-tracking-control-name="public_jobs_apply-link-offsite_sign_up_modal_join-form-profile-card-edit-photo" title="Edit profile photo" type="button">
+                <icon data-delayed-url="https://static.licdn.com/aero-v1/sc/h/5oas73nreunfgygkpe5iwmgrs"></icon>
+              </button>
+              <div class="profile-card__info">
+                <h3 class="profile-card__info-name"></h3>
+                <p class="profile-card__info-email"></p>
+              </div>
+              <button class="profile-card__not-you" data-tracking-control-name="public_jobs_apply-link-offsite_sign_up_modal_join-form-profile-card-not-you" type="button">
+                      Not you?
+              </button>
+            </div>
+            <div class="profile-card__edit-photo-modal hidden">
+              <div class="profile-card__edit-photo-content">
+                <div class="profile-card__edit-photo-remove">
+                  <button class="profile-card__edit-photo-text" data-tracking-control-name="public_jobs_apply-link-offsite_sign_up_modal_join-form-profile-card-remove-photo" type="button">
+                    Remove photo
+                  </button>
+                </div>
+                <div class="profile-card__edit-photo-cancel">
+                  <button aria-label="Cancel" class="profile-card__edit-photo-cancel-icon" data-tracking-control-name="public_jobs_apply-link-offsite_sign_up_modal_join-form-profile-card-edit-photo-cancel" title="Cancel" type="button">
+                    <icon data-delayed-url="https://static.licdn.com/aero-v1/sc/h/gs508lg3t2o81tq7pmcgn6m2"></icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+<!---->
+      
+    <div class="alert hidden" role="alert" tabindex="-1">
+      <div class="wrapper">
+        <p class="alert-content">
+          
+        </p>
+      </div>
+    </div>
+  
+
+      <section class="join-form__form-body  join-form__form-body--gsi">
+<!---->
+        <div class="join-form__form-input-container join-form__form-input-container--is-hidden join-form__form-input-container--is-last-section">
+            
+
+    
+    
+    
+    
+    
+    
+
+      
+      <div class="input ">
+        
+    <!---->
+    <input class="input__input" autocomplete="on" data-tracking-control-name="public_jobs_apply-link-offsite_sign_up_modal_join-form-name_first-name" required="" id="first-name" name="first-name" placeholder=" " type="text">
+    <!---->
+    <label class="input__label " for="first-name">First name</label>
+  
+        
+      </div>
+  
+      
+      <div class="input ">
+        
+    <!---->
+    <input class="input__input" autocomplete="on" data-tracking-control-name="public_jobs_apply-link-offsite_sign_up_modal_join-form-name_last-name" required="" id="last-name" name="last-name" placeholder=" " type="text">
+    <!---->
+    <label class="input__label " for="last-name">Last name</label>
+  
+        
+      </div>
+  
+      
+        </div>
+
+        <div class="join-form__form-input-container ">
+            
+      <div class="input ">
+        
+    <!---->
+    <input class="input__input" data-tracking-control-name="public_jobs_apply-link-offsite_sign_up_modal_join-form-email-or-phone_email-or-phone" required="" id="email-or-phone" name="email-or-phone" placeholder=" ">
+    <datalist id="email-domains"></datalist>
+    <label class="input__label " for="email-or-phone">Email</label>
+  
+        
+      </div>
+  
+                
+
+    
+    
+    
+    
+    
+
+    <code id="i18n_hide_password_aria_label" style="display: none"><!--"Hide your LinkedIn password"--></code>
+    <code id="i18n_show_password_aria_label" style="display: none"><!--"Show your LinkedIn password"--></code>
+
+      
+      <div class="input ">
+        
+    <!---->
+    <input class="input__input" autocomplete="new-password" data-tracking-control-name="public_jobs_apply-link-offsite_sign_up_modal_join-form-password_password" required="" id="password" name="password" placeholder=" " type="password">
+    <!---->
+    <label class="input__label " for="password">Password (6+ characters)</label>
+  
+        
+      </div>
+  
+  
+
+<!---->        </div>
+
+          
+    
+    
+    
+    
+
+<!---->
+        
+            
+              <div class="pt-4" id="join-form__legal-agreement-padding"></div>
+              <div class="join-form__form-body-agreement join-form__form-body-agreement--is-hidden" id="join-form__step_2_agreement">
+                By clicking Agree &amp; Join, you agree to the LinkedIn <a href="https://www.linkedin.com/legal/user-agreement?trk=public_jobs_apply-link-offsite_join-form-user-agreement" class="join-form__form-body-agreement-item-link" target="_blank" data-tracking-will-navigate="true" data-tracking-control-name="public_jobs_apply-link-offsite_join-form-user-agreement">User Agreement</a>, <a href="https://www.linkedin.com/legal/privacy-policy?trk=public_jobs_apply-link-offsite_join-form-privacy-policy" class="join-form__form-body-agreement-item-link" target="_blank" data-tracking-will-navigate="true" data-tracking-control-name="public_jobs_apply-link-offsite_join-form-privacy-policy">Privacy Policy</a> and <a href="https://www.linkedin.com/legal/cookie-policy?trk=public_jobs_apply-link-offsite_join-form-cookie-policy" class="join-form__form-body-agreement-item-link" target="_blank" data-tracking-will-navigate="true" data-tracking-control-name="public_jobs_apply-link-offsite_join-form-cookie-policy">Cookie Policy</a>.
+              </div>
+            
+          
+  
+
+            
+              <button id="join-form-submit-continue" class="join-form__join-btn join-form__form-body-submit-button" value="Continue" data-tracking-litms="" data-tracking-control-name="jobs-guest-frontend_join-form-submit" type="submit">
+                Continue
+              </button>
+              <button id="join-form-submit-agree" class="join-form__join-btn join-form__form-body-submit-button sign-up-modal__elt-is-hidden" value="Agree &amp; Join" data-tracking-litms="" data-tracking-control-name="jobs-guest-frontend_join-form-submit" type="submit">
+                Agree &amp; Join
+              </button>
+            
+
+              
+
+    
+    
+    
+    
+    
+    
+    
+
+
+    <code id="dust-var-callbackUrl" style="display: none"><!--""--></code>
+    <code id="dust-var-authUrl" style="display: none"><!--""--></code>
+    <code id="dust-var-isSmartLockEnabled" style="display: none"><!--"false"--></code>
+    <code id="dust-var-useStandaloneLibrary" style="display: none"><!--"true"--></code>
+    <code id="dust-var-joinBtnProvider" style="display: none"><!--"GOOGLE"--></code>
+
+    <code id="i18n_third_party_join_error-message-facebook" style="display: none"><!--"Sorry, we were unable to pull in your Facebook information. Please try again."--></code>
+    <code id="i18n_third_party_join_error-message-google" style="display: none"><!--"Sorry, we were unable to pull in your Google information. Please try again."--></code>
+    <code id="i18n_third_party_join_error-message-wechat" style="display: none"><!--"Sorry, we were unable to pull in your Wechat information. Please try again."--></code>
+
+    <div class="third-party-join__container ">
+          <div class="third-party-join__reg-option">
+            <span class="third-party-join__line-wrapper">
+              <span class="third-party-join__line"></span>
+            </span>
+            <span class="third-party-join__content">
+              <span class="third-party-join__or-span">or</span>
+            </span>
+          </div>
+<!---->
+          <div class="third-party-join__gsi-btn-container" data-lib-src-path="https://static.licdn.com/aero-v1/sc/h/29rdkxlvag0d3cpj96fiilbju"></div>
+
+<!---->
+<!---->
+<!---->    </div>
+  
+      </section>
+
+        
+              <div class="sign-up-modal__tertiary-cta-container">
+                <div id="teriary-cta-container">
+                    <a class="sign-up-modal__sign-up-later" href="https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/4051266841#" data-tracking-control-name="public_jobs_apply-link-offsite_sign-up-modal-sign-up-later">
+                        Apply on company website
+                    </a>
+                </div>
+              </div>
+            
+    </form>
+
+    
+    
+
+    
+    <div class="">
+        <button class="modal__outlet " data-tracking-control-name="public_jobs_apply-link-offsite_sign_up_modal_modal_outlet" data-modal="default-outlet" aria-hidden="true" tabindex="-1">
+          
+        </button>
+
+      <div id="challenge-dialog" class="modal challenge-dialog " data-outlet="default-outlet">
+<!---->        <div class="modal__overlay flex items-center bg-color-background-scrim justify-center fixed bottom-0 left-0 right-0 top-0 opacity-0 invisible pointer-events-none z-[1000] transition-[opacity] ease-[cubic-bezier(0.25,0.1,0.25,1.0)] duration-[0.17s]
+            py-4
+            " aria-hidden="true">
+          <section aria-modal="true" role="dialog" aria-labelledby="challenge-dialog-modal-header" tabindex="-1" class="max-h-full modal__wrapper overflow-auto p-0 bg-color-surface max-w-[1128px] min-h-[160px] relative scale-[0.25] shadow-sm shadow-color-border-faint transition-[transform] ease-[cubic-bezier(0.25,0.1,0.25,1.0)] duration-[0.33s] focus:outline-0
+              
+              w-[774px] babybear:w-[360px]
+              
+              rounded-md">
+              <header class="modal__header flex items-center justify-between py-1.5 px-3
+                  ">
+                  <h2 id="challenge-dialog-modal-header" class="modal__title font-normal leading-open text-color-text text-lg">Security verification</h2>
+                  <button class="modal__dismiss modal__dismiss--with-icon btn-tertiary h-[40px] w-[40px] p-0 rounded-full indent-0
+                      " aria-label="Dismiss" data-tracking-control-name="public_jobs_apply-link-offsite_sign_up_modal_modal_dismiss" type="button">
+                      <icon class="modal__dismiss-icon relative top-[2px]" data-delayed-url="https://static.licdn.com/aero-v1/sc/h/gs508lg3t2o81tq7pmcgn6m2"></icon>
+                  </button>
+<!---->              </header>
+            <div class="modal__main w-full">
+              
+        <div class="flex">
+          <iframe tabindex="0" title="Security verification" class="challenge-dialog__iframe" src="./linkedin_test_4051266841_files/saved_resource.html" frameborder="0" scrolling="auto" allowtransparency="true"></iframe>
+          <div id="focus-capture" tabindex="0" class="sr-only"></div>
+        </div>
+      
+            </div>
+
+<!---->          </section>
+        </div>
+      </div>
+    </div>
+  
+  
+
+    
+
+
+    
+
+
+    
+    
+    
+
+    <code id="i18n_required_email-or-phone" style="display: none"><!--"Please enter your email address or mobile number."--></code>
+    <code id="i18n_tooLong_email-or-phone" style="display: none"><!--"Email or mobile number must be between 3 to 128 characters."--></code>
+    <code id="i18n_invalidFormat_email-or-phone" style="display: none"><!--"Please enter a valid email address or mobile number."--></code>
+
+
+    
+    
+    
+
+    <code id="i18n_required_password" style="display: none"><!--"Please enter your password."--></code>
+    <code id="i18n_tooShort_password" style="display: none"><!--"Password must be 6 characters or more."--></code>
+    <code id="i18n_tooLong_password" style="display: none"><!--"Your password cannot exceed a maximum of 200 characters."--></code>
+
+    
+    <code id="i18n_server_generic_error" style="display: none"><!--"Sorry, something went wrong. Please try again."--></code>
+  
+
+    
+    
+    
+    
+    
+    
+
+    <code id="i18n_required_first-name" style="display: none"><!--"Please enter your first name."--></code>
+    <code id="i18n_tooLong_first-name" style="display: none"><!--"First name can not exceed 50 characters."--></code>
+    <code id="i18n_noForbiddenCharacters_first-name" style="display: none"><!--"Please enter a valid first name."--></code>
+    <code id="i18n_noConsecutiveDigits_first-name" style="display: none"><!--"Please enter a valid first name."--></code>
+    <code id="i18n_noFourConsecutiveDuplicates_first-name" style="display: none"><!--"Please enter a valid first name."--></code>
+    <code id="i18n_noLinkedIn_first-name" style="display: none"><!--"Please enter a valid first name."--></code>
+    <code id="i18n_noUrl_first-name" style="display: none"><!--"Please enter a valid first name."--></code>
+    <code id="i18n_onlyPhonetic_phonetic-first-name" style="display: none"><!--"Please use phonetic characters for your phonetic first name."--></code>
+    <code id="i18n_tooLong_phonetic-first-name" style="display: none"><!--"Phonetic first name can not exceed 50 characters."--></code>
+    <code id="i18n_noFourConsecutiveDuplicates_phonetic-first-name" style="display: none"><!--"Please enter a valid phonetic first name."--></code>
+
+
+    
+    
+    
+    
+    
+    
+
+    <code id="i18n_required_last-name" style="display: none"><!--"Please enter your last name."--></code>
+    <code id="i18n_tooLong_last-name" style="display: none"><!--"Last name can not exceed 50 characters."--></code>
+    <code id="i18n_noForbiddenCharacters_last-name" style="display: none"><!--"Please enter a valid last name."--></code>
+    <code id="i18n_noConsecutiveDigits_last-name" style="display: none"><!--"Please enter a valid last name."--></code>
+    <code id="i18n_noFourConsecutiveDuplicates_last-name" style="display: none"><!--"Please enter a valid last name."--></code>
+    <code id="i18n_noLinkedIn_last-name" style="display: none"><!--"Please enter a valid last name."--></code>
+    <code id="i18n_noUrl_last-name" style="display: none"><!--"Please enter a valid last name."--></code>
+    <code id="i18n_onlyPhonetic_phonetic-last-name" style="display: none"><!--"Please use phonetic characters for your phonetic last name."--></code>
+    <code id="i18n_tooLong_phonetic-last-name" style="display: none"><!--"Phonetic last name can not exceed 50 characters."--></code>
+    <code id="i18n_noFourConsecutiveDuplicates_phonetic-last-name" style="display: none"><!--"Please enter a valid phonetic last name."--></code>
+
+    
+    
+    
+    
+
+    <code id="i18n_onlyChinese_real-name" style="display: none"><!--"Please use only Chinese characters for real name."--></code>
+    <code id="i18n_tooLong_real-name" style="display: none"><!--"Real name should be 2-4 characters long."--></code>
+    <code id="i18n_tooShort_real-name" style="display: none"><!--"Real name should be 2-4 characters long."--></code>
+    <code id="i18n_required_real-name" style="display: none"><!--"Please enter your real name."--></code>
+
+    
+    
+    <code id="i18n_required_koreaConsentData" style="display: none"><!--"To proceed, you must confirm you understand and consent to the items above by checking each box."--></code>
+    <code id="i18n_required_koreaConsentShare" style="display: none"><!--"To proceed, you must confirm you understand and consent to the items above by checking each box."--></code>
+    
+
+<!----><!----><!---->  
+        </div>
+      
+            </div>
+
+                <footer class="modal__footer flex justify-end py-1.5 px-3 border-t-1 border-solid border-color-border-faint">
+                  
+          <a class="sign-up-modal__footer" href="https://www.linkedin.com/login?emailAddress=&amp;fromSignIn=&amp;fromSignIn=true&amp;session_redirect=https%3A%2F%2Fwww.linkedin.com%2Fjobs%2Fview%2Fmachine-learning-engineer-computer-vision-at-doordash-4051266841&amp;trk=public_jobs_apply-link-offsite" data-tracking-control-name="public_jobs_apply-link-offsite_sign-up-modal-sign-in">
+            Already on LinkedIn? Sign in
+          </a>
+      
+                </footer>
+          </section>
+        </div>
+      </div>
+    </div>
+  
+  
+  
+      
+
+                    
+            <a class="top-card-layout__cta mt-2 ml-1.5 h-auto babybear:flex-auto top-card-layout__cta--secondary btn-md btn-secondary" href="https://www.linkedin.com/login?emailAddress=&amp;fromSignIn=&amp;session_redirect=https%3A%2F%2Fwww.linkedin.com%2Fjobs%2Fview%2Fmachine-learning-engineer-computer-vision-at-doordash-4051266841&amp;trk=public_jobs" data-impression-id="public_jobs_topcard-save-job" data-tracking-control-name="public_jobs_topcard-save-job" data-tracking-will-navigate="" data-test-redirect-save-to-login="">
+                Save
+            </a>
+      
+              </div>
+            </div>
+
+<!---->          </div>
+
+          
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+      <div class="ellipsis-menu absolute right-0 top-0 top-card-layout__ellipsis-menu mr-1 papabear:mt-0.5 papabear:mr-2">
+        
+
+    
+
+    <div class="collapsible-dropdown flex items-center relative hyphens-auto">
+          
+            <button class="ellipsis-menu__trigger
+                collapsible-dropdown__button btn-md btn-tertiary cursor-pointer
+                !py-[6px] !px-1 flex items-center rounded-[50%]
+                
+                " aria-expanded="false" aria-label="Open menu" data-tracking-control-name="public_jobs_ellipsis-menu-trigger" tabindex="0">
+              <icon class="ellipsis-menu__trigger-icon m-0 p-0 centered-icon" data-delayed-url="https://static.licdn.com/aero-v1/sc/h/671xosfpvk4c0kqtyl87hashi"></icon>
+            </button>
+          
+
+        <ul class="collapsible-dropdown__list hidden container-raised absolute w-auto overflow-y-auto flex-col items-stretch z-1 bottom-auto top-[100%]" role="menu" tabindex="-1">
+          
+              
+
+<!----><!---->          
+        </ul>
+
+<!---->    </div>
+  
+
+      </div>
+  
+
+<!---->      </div>
+    </section>
+  
+  
+
+    <div class="decorated-job-posting__details">
+<!---->
+      
+    
+    
+    
+    
+    
+
+    
+    <section class="core-section-container
+        my-3 description">
+<!---->
+<!---->
+<!---->
+      <div class="core-section-container__content break-words">
+        
+      
+    
+    
+
+<!---->  
+
+      <div class="description__text description__text--rich">
+        
+    
+    
+    
+
+    <section class="show-more-less-html" data-max-lines="5">
+        <div class="show-more-less-html__markup show-more-less-html__markup--clamp-after-5
+            relative overflow-hidden">
+          <strong>About The Team<br><br></strong>Come help us build the world's most reliable on-demand, logistics engine for last-mile grocery and retail delivery! We're looking for an experienced senior machine learning engineer to help us develop the cutting-edge Computer Vision models that power DoorDash's growing grocery and retail business.<br><br><strong>About The Role<br><br></strong>We’re looking for a passionate Applied Machine Learning expert to join our team. As a Computer Vision expert, you’ll be conceptualizing, designing, implementing, and validating algorithmic improvements to the computer vision system at the heart of our fast-growing grocery and retail delivery business. You will use our robust data and machine learning infrastructure to implement new ML solutions to make our product knowledge graph and inventory information more accurate and real time, as well as help Dasher efficiency. We’re looking for someone with a command of production-level machine learning and experience with solving end-user problems who enjoys collaborating with multidisciplinary teams.<br><br><strong>You’re Excited About This Opportunity Because You Will…<br><br></strong><ul><li>Develop production machine learning solutions to solve consumer vision problems such as entity recognition, entity resolution, attribute extraction, object detection, segmentation, metric learning, and category classification, image classification.</li><li>Collaborate with cross-functional leaders across engineering, product, and business strategy to help shape a product roadmap driven by machine learning, accelerating the growth of a multi-billion-dollar retail delivery ecosystem.</li><li>Explore and harness diverse data sources, leveraging intuitive models and fostering a culture of flexible experimentation. Your goal will be to continuously improve the shopping and dashing experiences, delivering solutions that are not only effective but also scalable and user-centric.</li><li>Drive impact and enjoy ample room for both personal and professional growth. This includes opportunities for deep technical development and leadership as you work within a growing team that is actively unlocking new markets for the company.</li><li>Innovate and experiment with cutting-edge technologies and methodologies in AI and ML. You’ll have the freedom to explore emerging technologies, test new ideas, and drive technical innovation in the computer vision space, directly shaping the future of our retail and delivery solutions.<br><br></li></ul><strong>We’re Excited About You Because You Have…<br><br></strong><ul><li>Industry experience developing machine learning models with business impact, and shipping ML solutions to production. You have successfully shipped ML solutions to production and understand the nuances of transitioning models from development to real-world environments.</li><li>Deep expertise in applied Computer Vision, with hands-on experience solving challenging vision-related problems and implementing solutions that drive customer value. Your knowledge extends to solving complex tasks such as object detection, classification, and segmentation.</li><li>Strong machine learning and programming skills, particularly in Python, with experience in key ML frameworks such as PyTorch, TensorFlow, or Spark. You’re able to implement scalable models and optimize performance for production systems.</li><li>You must be located near one of our engineering hubs which includes: San Francisco, Sunnyvale, Los Angeles, Seattle, and New York</li><li>M.S., or PhD. in Computer Vision, Statistics, Computer Science, Math, Operations Research, Physics, Economics, or other quantitative field is a plus</li><li>Familiarity with causal inference and experimentation techniques, enabling you to design and evaluate experiments that validate the effectiveness of ML models and ensure the product’s continuous improvement.<br><br></li></ul>Notice to Applicants for Jobs Located in NYC or Remote Jobs Associated With Office in NYC Only<br><br>We use Covey as part of our hiring and/or promotional process for jobs in NYC and certain features may qualify it as an AEDT in NYC. As part of the hiring and/or promotion process, we provide Covey with job requirements and candidate submitted applications. We began using Covey Scout for Inbound from August 21, 2023, through December 21, 2023, and resumed using Covey Scout for Inbound again on June 29, 2024.<br><br>The Covey tool has been reviewed by an independent auditor. Results of the audit may be viewed here: Covey<br><br><strong>Compensation<br><br></strong>The successful candidate's starting pay will fall within the pay range listed below and is determined based on job-related factors including, but not limited to, skills, experience, qualifications, work location, and market conditions. Base salary is localized according to an employee’s work location. Ranges are market-dependent and may be modified in the future.<br><br>In addition to base salary, the compensation for this role includes opportunities for equity grants. Talk to your recruiter for more information.<br><br>DoorDash cares about you and your overall well-being. That’s why we offer a comprehensive benefits package to all regular employees, which includes a 401(k) plan with employer matching, 16 weeks of paid parental leave, wellness benefits, commuter benefits match, paid time off and paid sick leave in compliance with applicable laws (e.g. Colorado Healthy Families and Workplaces Act). DoorDash also offers medical, dental, and vision benefits, 11 paid holidays, disability and basic life insurance, family-forming assistance, and a mental health program, among others.<br><br>To learn more about our benefits, visit our careers page here.<br><br><strong>See Below For Paid Time Off Details<br><br></strong><ul><li>For salaried roles: flexible paid time off/vacation, plus 80 hours of paid sick time per year.</li><li>For hourly roles: vacation accrued at about 1 hour for every 25.97 hours worked (e.g. about 6.7 hours/month if working 40 hours/week; about 3.4 hours/month if working 20 hours/week), and paid sick time accrued at 1 hour for every 30 hours worked (e.g. about 5.8 hours/month if working 40 hours/week; about 2.9 hours/month if working 20 hours/week).<br><br></li></ul><strong>The national base pay ranges for this position within the United States, including Illinois and Colorado.<br><br></strong>I4<br><br>$137,100—$201,600 USD<br><br>I5<br><br>$167,800—$246,800 USD<br><br>I6<br><br>$203,500—$299,300 USD<br><br><strong>About DoorDash<br><br></strong>At DoorDash, our mission to empower local economies shapes how our team members move quickly, learn, and reiterate in order to make impactful decisions that display empathy for our range of users—from Dashers to merchant partners to consumers. We are a technology and logistics company that started with door-to-door delivery, and we are looking for team members who can help us go from a company that is known for delivering food to a company that people turn to for any and all goods.<br><br>DoorDash is growing rapidly and changing constantly, which gives our team members the opportunity to share their unique perspectives, solve new challenges, and own their careers. We're committed to supporting employees’ happiness, healthiness, and overall well-being by providing comprehensive benefits and perks including premium healthcare, wellness expense reimbursement, paid parental leave and more.<br><br><strong>Our Commitment to Diversity and Inclusion<br><br></strong>We’re committed to growing and empowering a more inclusive community within our company, industry, and cities. That’s why we hire and cultivate diverse teams of people from all backgrounds, experiences, and perspectives. We believe that true innovation happens when everyone has room at the table and the tools, resources, and opportunity to excel.<br><br>Statement of Non-Discrimination: In keeping with our beliefs and goals, no employee or applicant will face discrimination or harassment based on: race, color, ancestry, national origin, religion, age, gender, marital/domestic partner status, sexual orientation, gender identity or expression, disability status, or veteran status. Above and beyond discrimination and harassment based on “protected categories,” we also strive to prevent other subtler forms of inappropriate behavior (i.e., stereotyping) from ever gaining a foothold in our office. Whether blatant or hidden, barriers to success have no place at DoorDash. We value a diverse workforce – people who identify as women, non-binary or gender non-conforming, LGBTQIA+, American Indian or Native Alaskan, Black or African American, Hispanic or Latinx, Native Hawaiian or Other Pacific Islander, differently-abled, caretakers and parents, and veterans are strongly encouraged to apply. Thank you to the Level Playing Field Institute for this statement of non-discrimination.<br><br>Pursuant to the San Francisco Fair Chance Ordinance, Los Angeles Fair Chance Initiative for Hiring Ordinance, and any other state or local hiring regulations, we will consider for employment any qualified applicant, including those with arrest and conviction records, in a manner consistent with the applicable regulation.<br><br>If you need any accommodations, please inform your recruiting contact upon initial connection.
+        </div>
+
+        
+
+    
+    
+    
+
+    <button class="show-more-less-html__button show-more-less-button
+        show-more-less-html__button--more
+        ml-0.5" data-tracking-control-name="public_jobs_show-more-html-btn" aria-label="Show more" aria-expanded="false">
+<!---->
+        
+            Show more
+          
+
+          <icon class="show-more-less-html__button-icon show-more-less-button-icon" data-delayed-url="https://static.licdn.com/aero-v1/sc/h/cyolgscd0imw2ldqppkrb84vo"></icon>
+    </button>
+  
+
+        
+
+    
+    
+    
+
+    <button class="show-more-less-html__button show-more-less-button
+        show-more-less-html__button--less
+        ml-0.5" data-tracking-control-name="public_jobs_show-less-html-btn" aria-label="Show less" aria-expanded="true">
+<!---->
+        
+            Show less
+          
+
+          <icon class="show-more-less-html__button-icon show-more-less-button-icon" data-delayed-url="https://static.licdn.com/aero-v1/sc/h/4chtt12k98xwnba1nimld2oyg"></icon>
+    </button>
+  
+<!---->    </section>
+  
+      </div>
+
+      <ul class="description__job-criteria-list">
+        <li class="description__job-criteria-item">
+          <h3 class="description__job-criteria-subheader">
+            Seniority level
+          </h3>
+          <span class="description__job-criteria-text description__job-criteria-text--criteria">
+            Entry level
+          </span>
+        </li>
+        <li class="description__job-criteria-item">
+          <h3 class="description__job-criteria-subheader">
+            Employment type
+          </h3>
+          <span class="description__job-criteria-text description__job-criteria-text--criteria">
+            Part-time
+          </span>
+        </li>
+          <li class="description__job-criteria-item">
+            <h3 class="description__job-criteria-subheader">
+              Job function
+            </h3>
+            <span class="description__job-criteria-text description__job-criteria-text--criteria">
+              Engineering and Information Technology
+            </span>
+          </li>
+          <li class="description__job-criteria-item">
+            <h3 class="description__job-criteria-subheader">
+              Industries
+            </h3>
+            <span class="description__job-criteria-text description__job-criteria-text--criteria">
+            Software Development
+            </span>
+          </li>
+      </ul>
+    
+      </div>
+    </section>
+  
+  
+
+        
+    
+
+    
+
+      
+    <section class="core-section-container
+        my-3 find-a-referral">
+<!---->
+<!---->
+<!---->
+      <div class="core-section-container__content break-words">
+        
+        
+      
+    
+      <div class="face-pile flex !no-underline">
+        
+      <div class="face-pile__images-container self-start flex-shrink-0 mr-1 leading-[1]">
+          
+      <img class="inline-block relative
+          rounded-[50%]
+          w-4 h-4
+           face-pile__image border-1 border-solid border-color-transparent -ml-2 first:ml-0" data-delayed-url="https://static.licdn.com/aero-v1/sc/h/a2wlk3z1s5pffht0cyhsdg2bs" data-ghost-classes="bg-color-entity-ghost-background" data-ghost-url="https://static.licdn.com/aero-v1/sc/h/9c8pery4andzj6ohjkjp54ma2" alt="">
+      
+          
+      <img class="inline-block relative
+          rounded-[50%]
+          w-4 h-4
+           face-pile__image border-1 border-solid border-color-transparent -ml-2 first:ml-0" data-delayed-url="https://static.licdn.com/aero-v1/sc/h/ep18cz0zbog1k61nu8kk2kwmr" data-ghost-classes="bg-color-entity-ghost-background" data-ghost-url="https://static.licdn.com/aero-v1/sc/h/9c8pery4andzj6ohjkjp54ma2" alt="">
+      
+          
+      <img class="inline-block relative
+          rounded-[50%]
+          w-4 h-4
+           face-pile__image border-1 border-solid border-color-transparent -ml-2 first:ml-0" data-delayed-url="https://static.licdn.com/aero-v1/sc/h/8w44rdi2q9j581bh0jvajry6x" data-ghost-classes="bg-color-entity-ghost-background" data-ghost-url="https://static.licdn.com/aero-v1/sc/h/9c8pery4andzj6ohjkjp54ma2" alt="">
+      
+      </div>
+        
+          
+            <div class="find-a-referral__cta-container">
+              <p>Referrals increase your chances of interviewing at DoorDash by 2x</p>
+              <a class="find-a-referral__cta" href="https://www.linkedin.com/login?session_redirect=https%3A%2F%2Fwww%2Elinkedin%2Ecom%2Fsearch%2Fresults%2Fpeople%2F%3FfacetCurrentCompany%3D3205573&amp;emailAddress=&amp;fromSignIn=&amp;trk=public_jobs_find-a-referral-cta" data-impression-id="public_jobs_find-a-referral-cta" data-tracking-control-name="public_jobs_find-a-referral-cta" data-tracking-will-navigate="">
+                See who you know
+              </a>
+            </div>
+          
+        
+    
+      </div>
+  
+  
+  
+      
+      </div>
+    </section>
+  
+  
+
+<!---->    </div>
+
+<!---->
+<!---->
+    <code id="decoratedJobPostingId" style="display: none"><!--"4051266841"--></code>
+      <code id="referenceId" style="display: none"><!--"+rXz8x5gSEynBrjyOaBexQ=="--></code>
+    <code id="joinUrlWithRedirect" style="display: none"><!--"https://www.linkedin.com/signup/cold-join?source=jobs_registration&session_redirect=https%3A%2F%2Fwww.linkedin.com%2Fjobs%2Fview%2Fmachine-learning-engineer-computer-vision-at-doordash-4051266841&trk=public_jobs_save-job"--></code>
+  
+  </body></html>
