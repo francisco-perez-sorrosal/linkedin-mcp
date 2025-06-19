@@ -2,11 +2,9 @@ import asyncio
 import os
 import random
 import time
-import urllib
-import urllib.parse
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple
 
 import bs4
 import requests
@@ -14,12 +12,6 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from loguru import logger
 from selenium import webdriver
-from selenium.common.exceptions import (
-    NoSuchElementException,
-    StaleElementReferenceException,
-    TimeoutException,
-    WebDriverException,
-)
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -27,6 +19,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from linkedin_mcp_server.cache import BasicInMemoryCache
+
 
 # Load environment variables from .env file
 env_loaded: bool = load_dotenv()
@@ -61,30 +54,14 @@ class JobPostingExtractor:
     Supports multiple job platforms with fallback mechanisms.
     """
     
-    username: str | None = None
-    password: str | None = None
-    timeout: int = 10
     _job_description_cache: BasicInMemoryCache | None = None
-    _driver: WebDriver | None = None
-    client_id = os.getenv('LINKEDIN_OAUTH_CLIENT_ID')
-    client_secret = os.getenv('LINKEDIN_OAUTH_CLIENT_SECRET')
-    redirect_uri = "http://localhost:8000/callback"
-    scope = "r_liteprofile r_emailaddress"
-    
+    _driver: WebDriver | None = None    
     linkedin_cache_key_name = "linkedin_job_id"
 
     
     def __post_init__(self):
-        self.auth_url = (
-            f"https://www.linkedin.com/oauth/v2/authorization"
-            f"?response_type=code"
-            f"&client_id={self.client_id}"
-            f"&redirect_uri={urllib.parse.quote(self.redirect_uri)}"
-            f"&scope={urllib.parse.quote(self.scope)}"
-        )
-        logger.info(self.auth_url)                
-        self._driver, self.oauth_code = self._setup_webdriver()
-        self._driver.implicitly_wait(self.timeout)
+        self._driver = self._setup_webdriver()
+        self._driver.implicitly_wait(10)
         logger.info("WebDriver initialized")
         
         if not self._job_description_cache:
@@ -93,12 +70,9 @@ class JobPostingExtractor:
                                                             "raw_job_descriptions.jsonl",
                                                             cache_key_name=self.linkedin_cache_key_name)
         logger.info(f"Raw Description Cache initialized in {self._job_description_cache.cache_file}")
-        
-        # Perform login if credentials are provided
-        # self._linkedin_login(*get_linkedin_credentials())
             
             
-    def _setup_webdriver(self) -> Tuple[WebDriver, str]:
+    def _setup_webdriver(self) -> WebDriver:
         """
         Setup Chrome webdriver with headless mode and common options
         
@@ -109,106 +83,14 @@ class JobPostingExtractor:
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
-        # chrome_options.add_argument(r"--user-data-dir=/Users/fperez/Library/Application Support/Google/LinkedInMCP")
-        # chrome_options.add_argument("--profile-directory=Default")  # or "Profile 1", etc.        
         
         try:
-            driver = webdriver.Chrome(options=chrome_options)
-            # logger.info(f"Navigating to {self.auth_url}")
-            # driver.get(self.auth_url)
-            
-            # # print(driver.page_source)
-            
-            # time.sleep(2)
-            # logger.info(f"Setting username, password and clicking submit...")
-            # username, password = get_linkedin_credentials()
-            # driver.find_element(By.ID, "username").send_keys(username)
-            # driver.find_element(By.ID, "password").send_keys(password)
-            # driver.find_element(By.XPATH, "//button[@type='submit']").click()
-            # logger.info("Waiting for redirect...")
-            # while True:
-            #     current_url = driver.current_url
-            #     if "code=" in current_url:
-            #         break
-            #     time.sleep(1)
-            # parsed_url = urllib.parse.urlparse(current_url)
-            # oauth_code = urllib.parse.parse_qs(parsed_url.query).get("code")[0]
-            
-            return driver, "" #oauth_code
+            return webdriver.Chrome(options=chrome_options)
         except Exception as e:
             logger.error(f"Failed to initialize webdriver: {e}")
             raise        
         
-    
-    
-    def _linkedin_login(self, username: str, password: str):
-        """
-        Perform LinkedIn login with the provided credentials
         
-        Args:
-            username (str): LinkedIn username
-            password (str): LinkedIn password
-        """
-        
-        try:
-            # Navigate to LinkedIn login page
-            self._driver.get("https://www.linkedin.com/login")
-            
-            # Wait for page to load
-            time.sleep(3)
-            
-            # Find and fill username field
-            username_field = self._driver.find_element(By.ID, "username")
-            username_field.clear()
-            username_field.send_keys(username)
-            
-            # Find and fill password field
-            password_field = self._driver.find_element(By.ID, "password")
-            password_field.clear()
-            password_field.send_keys(password)
-            
-            # Submit login form
-            password_field.submit()
-            
-            # Wait for potential login challenges
-            time.sleep(5)
-            logger.info(f"LinkedIn login submitted for user: {username}")
-            
-            # Optional: Check if login was successful
-            try:
-                # Look for an element that exists only after successful login
-                self._driver.find_element(By.CSS_SELECTOR, "div.feed-identity-module")
-                logger.info(f"LinkedIn login successful for user: {username}")
-            except Exception:
-                logger.warning("Login might have failed or requires additional verification")
-        
-        except Exception as e:
-            logger.error(f"Failed to perform LinkedIn login: {e}")
-            raise
-        
-    def parse_job(self, job_element):
-        title_element = job_element.find('a', class_='job-card-search__link--Oj6')
-        logger.info(f"Title element {title_element}")
-        if title_element:
-            title = title_element.text.strip()
-            url = title_element['href']
-            company_element = job_element.find('a', class_='job-card-container__company-name')
-            company = company_element.text.strip() if company_element else "N/A"
-            return {
-                'title': title,
-                'company': company,
-                'url': url
-            }
-        return None    
-    
-    def extract_raw_job_data(self, job_ids: List[str]):
-        for job_id in job_ids:
-            job_url: str = self.job_url.format(job_id=job_id)
-            job_data: Tuple[Dict[str, str], bool] = self.extract_raw_info_from(job_url)
-            print(job_data)
-            if job_data:
-                self._job_description_cache.put(job_data[0])
-    
     async def scrape_job_listings_page(self, url: str, start_idx: int) -> List[str]:
         
         delay = random.uniform(0, 1)
@@ -646,7 +528,7 @@ if __name__ == "__main__":
     
     test_job_url = JOB_URL.format(job_id="4024185558")
     test_job_url = JOB_URL.format(job_id="4051266841")
-    test_job_url = JOB_URL.format(job_id="4153684130")
+    test_job_url = JOB_URL.format(job_id="4051266841")
     logger.info(f"Testing job URL: {test_job_url}")
     extractor.extract_linkedin_job_description(test_job_url)
     
