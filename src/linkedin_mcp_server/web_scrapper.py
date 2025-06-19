@@ -292,138 +292,132 @@ class JobPostingExtractor:
         
         Returns:
             Dict containing job details or empty dict if extraction fails
-        """        
-        
+        """
         try:            
             self._driver.get(url)
             logger.info(f"Navigated to {url}")
-                        
-            job_title = "N/A"
-            job_title_selectors = [
-                (By.CSS_SELECTOR, "h1.top-card-layout__title"),
-            ]
-            # Try these selectors one by one
-            for selector in job_title_selectors:
-                if self._driver is None:
-                    logger.error("WebDriver is None, cannot extract job title.")
-                    break
-                try:
-                    element = WebDriverWait(self._driver, 10).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, "h1.top-card-layout__title"))
-                    )
-                    job_title = element.text
-                    logger.info(f"SUCCESS with selector {selector}: {job_title}")
-                    break
-                except Exception as e:
-                    logger.error(f"FAILED to extract job title with selector {selector}: {e}")
-                    
-                
-            logger.debug(f"Job title: {job_title}")
             
-            # Extract company name using an array of selectors (only the correct one for now)
-            company_selectors = [
-                (By.CSS_SELECTOR, "a.topcard__org-name-link"),
-            ]
-            company_name = "N/A"
-            for selector in company_selectors:
-                if self._driver is None:
-                    logger.error("WebDriver is None, cannot extract company name.")
-                    break
-                try:
-                    company_element = WebDriverWait(self._driver, 10).until(
-                        EC.presence_of_element_located(selector)
-                    )
-                    company_name = company_element.text
-                    logger.info(f"SUCCESS with selector {selector}: {company_name}")
-                    break
-                except Exception as e:
-                    logger.error(f"FAILED to extract company name with selector {selector}: {e}")
-                    
+            # Wait for the page to load
+            WebDriverWait(self._driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, ".top-card-layout__title, .job-details-jobs-unified-top-card__job-title"))
+            )
             
-            # Define multiple potential selectors for job description
-            job_desc_selectors = [
-                (By.CSS_SELECTOR, "div.show-more-less-html__markup"),
-            ]
-            
-            job_description = "N/A"
-            # Try multiple selectors to find job description
-            for selector in job_desc_selectors:
-                if self._driver is None:
-                    logger.error("WebDriver is None, cannot extract job description.")
-                    break
-                logger.info(f"Trying selector {selector}")
-                try:
-                    elements = self._driver.find_elements(*selector)
-                    if elements:
-                        job_desc_element = elements[0]
-                        # Try to get the full HTML content for formatting
-                        html_content = job_desc_element.get_attribute('innerHTML')
-                        if html_content and html_content.strip():
-                            job_description = html_content.strip()
-                        else:
-                            job_description = job_desc_element.text.strip()
-                        break
-                except Exception as e:
-                    logger.warning(f"Selector {selector} failed: {e}")
-            
-            # Extract salary/pay figures using an array of selectors (CSS only)
-            salary_selectors = [
-                (By.CSS_SELECTOR, "div.compensation__salary"),
-            ]
-            salary = "N/A"
-            for selector in salary_selectors:
-                if self._driver is None:
-                    logger.error("WebDriver is None, cannot extract salary.")
-                    break
-                try:
-                    salary_element = WebDriverWait(self._driver, 2).until(
-                        EC.presence_of_element_located(selector)
-                    )
-                    salary = salary_element.text
-                    logger.info(f"SUCCESS with selector {selector}: {salary}")
-                    break
-                except Exception as e:
-                    logger.error(f"FAILED to extract salary with selector {selector}: {e}")
-
-            # Extract salary/pay comments using an array of selectors (CSS only)
-            salary_comments_selectors = [
-                (By.CSS_SELECTOR, "p.compensation__description"),
-            ]
-            salary_comments = "N/A"
-            for selector in salary_comments_selectors:
-                if self._driver is None:
-                    logger.error("WebDriver is None, cannot extract salary comments.")
-                    break
-                try:
-                    comments_element = WebDriverWait(self._driver, 2).until(
-                        EC.presence_of_element_located(selector)
-                    )
-                    salary_comments = comments_element.text
-                    logger.info(f"SUCCESS with selector {selector}: {salary_comments}")
-                    break
-                except Exception as e:
-                    logger.error(f"FAILED to extract salary comments with selector {selector}: {e}")
-
+            # Initialize job details with default values
             job_details = {
-                "linkedin_job_id": url.split("/")[-1],
-                "title": job_title.strip(),
-                "company": company_name.strip(),
-                "salary": salary.strip() if salary else "N/A",
-                "salary_comments": salary_comments.strip() if salary_comments else "N/A",
-                "raw_description": job_description.strip(),
-                "url": url,
-                "extracted_at": datetime.now().isoformat()
+                self.linkedin_cache_key_name: url.split("/")[-1],
+                "title": "N/A",
+                "company": "N/A",
+                "location": "N/A",
+                "employment_type": "N/A",
+                "workplace_type": "N/A",
+                "description": "N/A",
+                "posted_date": "N/A",
+                "applicants": "N/A",
+                "seniority_level": "N/A",
+                "job_function": "N/A",
+                "industries": "N/A"
             }
             
-            # Save to cache
-            if self._job_description_cache is not None:
-                self._job_description_cache.put(job_details)
+            # Extract job title
+            try:
+                title_elem = self._driver.find_element(
+                    By.CSS_SELECTOR, 
+                    ".top-card-layout__title, .job-details-jobs-unified-top-card__job-title"
+                )
+                job_details["title"] = title_elem.text.strip()
+            except Exception as e:
+                logger.error(f"Failed to extract job title: {e}")
             
+            # Extract company name
+            try:
+                company_elem = self._driver.find_element(
+                    By.CSS_SELECTOR,
+                    "a.topcard__org-name-link, .job-details-jobs-unified-top-card__company-name a"
+                )
+                job_details["company"] = company_elem.text.strip()
+            except Exception as e:
+                logger.error(f"Failed to extract company name: {e}")
+                
+            # Extract location
+            try:
+                location_elem = self._driver.find_element(
+                    By.CSS_SELECTOR,
+                    ".topcard__flavor--bullet, .job-details-jobs-unified-top-card__bullet"
+                )
+                job_details["location"] = location_elem.text.strip()
+            except Exception as e:
+                logger.error(f"Failed to extract location: {e}")
+                
+            # Extract job description
+            try:
+                # First try the main content area
+                desc_elem = self._driver.find_element(
+                    By.CSS_SELECTOR,
+                    ".description__text .show-more-less-html__markup, " \
+                    ".jobs-box__html-content, .jobs-description-content__text"
+                )
+                html_content = desc_elem.get_attribute('innerHTML')
+                job_details["description"] = html_content.strip() if html_content else ""
+            except Exception as e:
+                logger.error(f"Failed to extract job description: {e}")
+                try:
+                    # Fallback to any element with the job description class
+                    desc_elem = self._driver.find_element(
+                        By.CLASS_NAME,
+                        "jobs-description__content"
+                    )
+                    job_details["description"] = desc_elem.text.strip()
+                except Exception as e:
+                    logger.error(f"Failed to extract job description (fallback): {e}")
+            
+            # Extract additional job details
+            try:
+                # Look for details in the job criteria section
+                criteria_items = self._driver.find_elements(
+                    By.CSS_SELECTOR,
+                    ".description__job-criteria-item"
+                )
+                
+                for item in criteria_items:
+                    try:
+                        label = item.find_element(By.CSS_SELECTOR, ".description__job-criteria-subheader").text.strip()
+                        value = item.find_element(By.CSS_SELECTOR, ".description__job-criteria-text").text.strip()
+                        
+                        if 'seniority level' in label.lower():
+                            job_details["seniority_level"] = value
+                        elif 'employment type' in label.lower():
+                            job_details["employment_type"] = value
+                        elif 'job function' in label.lower():
+                            job_details["job_function"] = value
+                        elif 'industries' in label.lower():
+                            job_details["industries"] = value
+                    except Exception as e:
+                        logger.error(f"Failed to extract job criteria: {e}")
+            except Exception as e:
+                logger.error(f"Failed to find job criteria section: {e}")
+            
+            # Extract posted date and applicants if available
+            try:
+                meta_info = self._driver.find_elements(
+                    By.CSS_SELECTOR,
+                    ".posted-time-ago__text, .jobs-unified-top-card__job-insight"
+                )
+                logger.info(meta_info[0].text)
+                logger.info(meta_info[1].text)
+                if len(meta_info) > 0:
+                    job_details["posted_date"] = meta_info[0].text.strip()
+                if len(meta_info) > 1:
+                    job_details["applicants"] = meta_info[1].text.strip()
+            except Exception as e:
+                logger.error(f"Failed to extract meta information: {e}")
+            
+            logger.info(f"Successfully extracted job details for: {job_details.get('title', 'N/A')} at {job_details.get('company', 'N/A')}")
+            logger.info(job_details)
             return job_details
-        
+            
         except Exception as e:
-            logger.error(f"Job description extraction failed: {e}")
-            return {}    
+            logger.error(f"Error extracting job description from {url}: {e}")
+            return {}
             
     def extract_raw_info_from(self, url: str) -> Tuple[Dict[str, str], bool]:
         """
@@ -471,7 +465,7 @@ class JobPostingExtractor:
 JOB_RETRIEVAL_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search-results/?distance=25&geoId=102277331&keywords=Looking%20for%20Research%20Enginer%2FMachine%20Learning%2FAI%20Engineer%20jobs%20in%20San%20Francisco&start={}"
 
 # job_url = "https://www.linkedin.com/jobs/view/{job_id}/"
-job_url: str = "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{job_id}"
+JOB_URL: str = "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{job_id}"
 
 
 if __name__ == "__main__":
@@ -479,14 +473,14 @@ if __name__ == "__main__":
     
     # Get all job IDs from LinkedIn
     logger.info("Fetching job listings from LinkedIn...")
-    all_job_ids = extractor.retrieve_job_ids_from_linkedin(max_pages=3)
+    # all_job_ids = extractor.retrieve_job_ids_from_linkedin(max_pages=3)
     
-    # Find only the new job IDs we haven't scraped yet
-    new_job_ids = extractor.get_new_job_ids(all_job_ids)
+    # # Find only the new job IDs we haven't scraped yet
+    # new_job_ids = extractor.get_new_job_ids(all_job_ids)
     
-    logger.info(f"Found {len(new_job_ids)} new jobs to process")
+    # logger.info(f"Found {len(new_job_ids)} new jobs to process")
     
-    test_job_url = job_url.format(job_id="4051266841")
+    test_job_url = JOB_URL.format(job_id="4051266841")
     logger.info(f"Testing job URL: {test_job_url}")
     extractor.extract_linkedin_job_description(test_job_url)
     
