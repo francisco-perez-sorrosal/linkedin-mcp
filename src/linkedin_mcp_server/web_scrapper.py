@@ -1,9 +1,11 @@
+import asyncio
 from dataclasses import dataclass
 from datetime import datetime
 import math
 import os
+import random
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Set
 import urllib
 import requests
 import urllib.parse
@@ -227,73 +229,73 @@ class JobPostingExtractor:
             if job_data:
                 self._job_description_cache.put(job_data[0])
     
-    def scrape_job_listings(self, url: str) -> List[str]:
+    async def scrape_job_listings_page(self, url: str, start_idx: int) -> List[str]:
+        
+        delay = random.uniform(0, 1)
+        await asyncio.sleep(delay)
+        
+        try:
+            url = url.format(start_idx)
+            logger.info(f"Scraping job listings page {start_idx}: {url}")
+            res = requests.get(url)
+            soup=BeautifulSoup(res.text,'html.parser')
+            job_ids: Set[str] = set()
+            for element in soup.find_all(attrs={"data-entity-urn": True}):
+                if not isinstance(element, bs4.element.Tag):
+                    continue
+                entity_urn = element.attrs.get("data-entity-urn")
+                if isinstance(entity_urn, str) and entity_urn.startswith("urn:li:jobPosting:"):
+                    job_id = entity_urn.split(":")[-1]
+                    if job_id.isdigit():
+                        job_ids.add(job_id)
+                        logger.info(f"Found job ID: {job_id}")
+            return list(job_ids)
+        except Exception as e:
+            logger.error(f"Error scraping job listings page: {e}")
+            return []
+    
+    
+    async def scrape_job_listings(self, url: str, max_pages: int = 30) -> List[str]:
         """
         Extract job IDs from LinkedIn job search results using requests+BeautifulSoup.
         Looks for job IDs in data-entity-urn attributes with format urn:li:jobPosting:4250736028.
+        
+        Args:
+            url: The base URL with a {} placeholder for page number
+            max_pages: Maximum number of pages to scrape (each page contains multiple jobs)
+            
+        Returns:
+            List of unique job IDs found across all pages
         """
-        job_ids = set()
-        try:
-            job_list = set()
-            step = 10
-            # for i in range(0, math.ceil(1000/step), step):
-            #     time.sleep(2)
-            #     res = requests.get(url.format(i))
-            #     soup=BeautifulSoup(res.text,'html.parser')
-            #     alljobs_on_this_page=soup.find_all("li")
 
-            #     logger.info(f"Jobs Page: {len(alljobs_on_this_page)}")
-
-            #     for x in range(0,len(alljobs_on_this_page)):
-            #         jobid = alljobs_on_this_page[x].find("div",{"class":"base-card"}).get('data-entity-urn').split(":")[3]
-            #         job_list.add(jobid)
+        # Create tasks for all pages
+        tasks = [self.scrape_job_listings_page(url, i * 10) for i in range(max_pages)]
+        
+        # Run all tasks concurrently
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Combine results from all pages
+        job_ids: Set[str] = set()
+        for result in results:
+            if isinstance(result, list):
+                job_ids.update(result)
+            elif isinstance(result, Exception):
+                logger.error(f"Error in page scrape: {result}")
+        
+        logger.info(f"Total unique job IDs found: {len(job_ids)}")
+        return list(job_ids)
             
-            # print(job_list)
-            
-            # job_list = list(job_list)
-            # print(len(job_list))
-            # exit()
-           
-            
-            # # Save main page source
-            # with open('main_page.html', 'w', encoding='utf-8') as f:
-            #     f.write(self._driver.page_source)
-            # exit()
-            logger.info(math.ceil(1000/step))
-            for i in range(0, 300, step):
-                logger.info(f"Start at {i}")
-                time.sleep(1)
-                res = requests.get(url.format(i))
-                soup=BeautifulSoup(res.text,'html.parser')
-
-                # Extract from `data-entity-urn` attribute (format: urn:li:jobPosting:4250736028)
-                for element in soup.find_all(attrs={"data-entity-urn": True}):
-                    if not isinstance(element, bs4.element.Tag):
-                        continue
-                    entity_urn = element.attrs.get("data-entity-urn")
-                    if isinstance(entity_urn, str) and entity_urn.startswith("urn:li:jobPosting:"):
-                        job_id = entity_urn.split(":")[-1]
-                        if job_id.isdigit():
-                            job_ids.add(job_id)
-                            logger.info(f"Found job ID: {job_id}")
-            
-            logger.info(f"Total job IDs found: {len(job_ids)}")
-            return list(job_ids)
-            
-        except Exception as e:
-            logger.error(f"Error extracting job listings: {e}")
-            return []
 
 
-    def retrieve_recommended_jobs_from_linkedin(self) -> None:
+    def retrieve_job_ids_from_linkedin(self) -> List[str]:
         """
-        Retrieve recommended jobs from LinkedIn
+        Retrieve job IDs from LinkedIn asynchronously.
+        This method starts the scraping in the background and returns immediately.
         """
-        all_jobs = []
-        logger.info(f"Retrieving recommended jobs from LinkedIn {self.job_retrieve_url}")
-        scraped_jobs: List[str] = self.scrape_job_listings(self.job_retrieve_url)
-        logger.info(f"Scraped {len(scraped_jobs)} jobs")
-        self.extract_raw_job_data(scraped_jobs[:1])
+        logger.info(f"Starting async job retrieval from LinkedIn {self.job_retrieve_url}")
+        all_jobs = asyncio.run(self.scrape_job_listings(self.job_retrieve_url))
+        logger.info(f"Scraped {len(all_jobs)} jobs")
+        return all_jobs
 
 
     def extract_linkedin_job_description(self, 
@@ -467,6 +469,5 @@ if __name__ == "__main__":
     url = "https://www.linkedin.com/jobs/collections/recommended/?currentJobId=4070067137"
     
     extractor = JobPostingExtractor()
-    job_details = extractor.retrieve_recommended_jobs_from_linkedin()
+    job_ids = extractor.retrieve_job_ids_from_linkedin()
     # job_details = extractor.extract_raw_info_from(url)
-    print(job_details)
