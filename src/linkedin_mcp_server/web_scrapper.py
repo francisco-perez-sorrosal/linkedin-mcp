@@ -495,7 +495,7 @@ if __name__ == "__main__":
     
     # Get all job IDs from LinkedIn
     logger.info("Fetching job listings from LinkedIn...")
-    all_job_ids = extractor.retrieve_job_ids_from_linkedin(max_pages=1)
+    all_job_ids = extractor.retrieve_job_ids_from_linkedin(max_pages=2)
     
     # Find only the new job IDs we haven't scraped yet
     new_job_ids = extractor.get_new_job_ids(all_job_ids)

@@ -8,10 +8,21 @@ anyio==4.9.0
     #   mcp
     #   sse-starlette
     #   starlette
-certifi==2025.4.26
+attrs==25.3.0
+    # via
+    #   jsonlines
+    #   outcome
+    #   trio
+beautifulsoup4==4.13.4
+    # via linkedin-mcp-server (pyproject.toml)
+certifi==2025.6.15
     # via
     #   httpcore
     #   httpx
+    #   requests
+    #   selenium
+charset-normalizer==3.4.2
+    # via requests
 click==8.2.1
     # via
     #   typer
@@ -20,11 +31,12 @@ h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
+    #   wsproto
 httpcore==1.0.9
     # via httpx
 httpx==0.28.1
     # via
-    #   cv-mcp-server (pyproject.toml)
+    #   linkedin-mcp-server (pyproject.toml)
     #   mcp
 httpx-sse==0.4.0
     # via mcp
@@ -32,13 +44,23 @@ idna==3.10
     # via
     #   anyio
     #   httpx
+    #   requests
+    #   trio
+jsonlines==4.0.0
+    # via linkedin-mcp-server (pyproject.toml)
+loguru==0.7.3
+    # via linkedin-mcp-server (pyproject.toml)
 markdown-it-py==3.0.0
     # via rich
-mcp==1.9.3
-    # via cv-mcp-server (pyproject.toml)
+mcp==1.9.4
+    # via linkedin-mcp-server (pyproject.toml)
 mdurl==0.1.2
     # via markdown-it-py
-pydantic==2.11.5
+outcome==1.3.0.post0
+    # via
+    #   trio
+    #   trio-websocket
+pydantic==2.11.7
     # via
     #   mcp
     #   pydantic-settings
@@ -48,38 +70,62 @@ pydantic-settings==2.9.1
     # via mcp
 pygments==2.19.1
     # via rich
-pymupdf==1.26.0
-    # via pymupdf4llm
-pymupdf4llm==0.0.24
-    # via cv-mcp-server (pyproject.toml)
+pysocks==1.7.1
+    # via urllib3
 python-dotenv==1.1.0
     # via
     #   mcp
     #   pydantic-settings
 python-multipart==0.0.20
     # via mcp
+requests==2.32.4
+    # via linkedin-mcp-server (pyproject.toml)
 rich==14.0.0
     # via typer
+selenium==4.33.0
+    # via linkedin-mcp-server (pyproject.toml)
 shellingham==1.5.4
     # via typer
 sniffio==1.3.1
-    # via anyio
+    # via
+    #   anyio
+    #   trio
+sortedcontainers==2.4.0
+    # via trio
+soupsieve==2.7
+    # via beautifulsoup4
 sse-starlette==2.3.6
     # via mcp
 starlette==0.47.0
     # via mcp
+trio==0.30.0
+    # via
+    #   selenium
+    #   trio-websocket
+trio-websocket==0.12.2
+    # via selenium
 typer==0.16.0
     # via mcp
-typing-extensions==4.14.0
+typing-extensions==4.13.2
     # via
     #   anyio
+    #   beautifulsoup4
     #   pydantic
     #   pydantic-core
+    #   selenium
     #   typer
     #   typing-inspection
 typing-inspection==0.4.1
     # via
     #   pydantic
     #   pydantic-settings
+urllib3==2.4.0
+    # via
+    #   requests
+    #   selenium
 uvicorn==0.34.3
     # via mcp
+websocket-client==1.8.0
+    # via selenium
+wsproto==1.2.0
+    # via trio-websocket
