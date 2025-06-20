@@ -8,7 +8,7 @@ from pathlib import Path
 
 from urllib.parse import quote_plus, quote
 from mcp.server.fastmcp import FastMCP
-from linkedin_mcp_server.web_scrapper import JobPostingExtractor
+from .web_scrapper import JobPostingExtractor
 
 # Configure transport and statelessness
 trspt = "stdio"
