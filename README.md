@@ -202,6 +202,13 @@ Also requires `runtime.txt` to be present in the root directory with the Python 
 python-3.11.11
 ```
 
+Remember also to set the environment variables in the render.com dashboard:
+
+```bash
+TRANSPORT=sse
+PORT=8000
+```
+
 Then you can query in Claude Desktop using the `linkedin_mcp_fps` MCP server to get info:
 
 ```text

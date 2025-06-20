@@ -490,6 +490,33 @@ class JobPostingExtractor:
         logger.info(f"Found {len(all_job_ids)} unique job IDs in {duration:.2f} seconds")
         return list(all_job_ids)
 
+    def get_jobs_raw_metadata(self, job_ids: List[str]) -> Dict[str, Dict[str, Any]]:
+        """
+        Gets the job description from the cache or scrapes it if not found.
+        
+        Args:
+            job_ids: List of job IDs to get the description for
+            
+        Returns:
+            List of job descriptions
+        """
+        
+        jobs_metadata: dict[str, Dict[str, Any]] = {}
+        
+        new_jobs = self.get_new_job_ids(job_ids)
+        
+        if new_jobs:
+            self.scrape_new_job_ids(new_jobs)
+        
+        for job_id in job_ids:
+            job_metadata = self._job_description_cache.get(job_id)
+            if job_metadata is not None:
+                jobs_metadata[job_id] = job_metadata
+            else:
+                logger.info(f"Job metadata not found for {job_id}")
+                
+        return jobs_metadata
+
 
 if __name__ == "__main__":
     extractor = JobPostingExtractor()

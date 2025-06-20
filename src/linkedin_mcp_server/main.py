@@ -1,13 +1,14 @@
 """Main module for the CV MCP server with Anthropic integration."""
 
 import os
+from typing import Any, Dict, List
 
 from loguru import logger
 from pathlib import Path
 
 from urllib.parse import quote_plus, quote
 from mcp.server.fastmcp import FastMCP
-
+from linkedin_mcp_server.web_scrapper import JobPostingExtractor
 
 # Configure transport and statelessness
 trspt = "stdio"
@@ -45,6 +46,7 @@ mcp = FastMCP("linkedin_mcp_server", stateless_http=stateless_http, host=host, p
 
 # NOTE: We have to wrap the resources to be accessible from the prompts
 
+extractor = JobPostingExtractor()
 
 @mcp.tool()
 def get_url_for_jobs_search(query: str = "Looking for Research Enginer/Machine Learning/AI Engineer jobs in San Francisco") -> str:
@@ -70,14 +72,40 @@ def compose_url_for_jobs_search(query: str) -> str:
     return f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search-results/?distance=25&geoId=102277331&keywords={encoded_query}"
 
 @mcp.tool()
-def connect() -> str:
-    """Connect to linkedin server."""
-    return "Connected to CV MCP server."
+def get_new_job_ids(url: str, num_pages: int = 1) -> List[str]:
+    """
+    Gets the new job IDs from LinkedIn.
+    
+    Args:
+        url: The URL to search for jobs in LinkedIn
+        num_pages: The number of pages to scrape
+        
+    Returns:
+        List of new job IDs
+    """
+    logger.info("Fetching job listings from LinkedIn...")
+    all_job_ids = extractor.retrieve_job_ids_from_linkedin(base_url=url, max_pages=num_pages)
+    new_job_ids = extractor.get_new_job_ids(all_job_ids)
+    print(f"Found {len(new_job_ids)} new jobs to process")
+    return new_job_ids
+
+@mcp.tool()
+def get_jobs_raw_metadata(job_ids: List[str]) -> Dict[str, Dict[str, Any]]:
+    """
+    Gets the job raw metadata for the given job IDs.
+    
+    Args:
+        job_ids: List of job IDs to get the job raw metadata for
+        
+    Returns:
+        Dict of job IDs and their corresponding raw metadata
+    """
+    return extractor.get_jobs_raw_metadata(job_ids)
 
 
 if __name__ == "__main__":
     # args: Namespace = parse_cli_arguments()
     
     # Initialize and run the server with the specified transport
-    print(f"Starting CV MCP server with {trspt} transport ({host}:{port}) and stateless_http={stateless_http}...")
+    print(f"Starting Linkedin MCP server with {trspt} transport ({host}:{port}) and stateless_http={stateless_http}...")
     mcp.run(transport=trspt)
