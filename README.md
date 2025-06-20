@@ -98,10 +98,10 @@ The server will start at `http://localhost:10000`. It will automatically reload 
 
 ```bash
 # Using pixi
-npx @modelcontextprotocol/inspector pixi run mcps --transport stdio
+DANGEROUSLY_OMIT_AUTH=true  npx @modelcontextprotocol/inspector pixi run mcps --transport stdio
 
 # Direct execution
-npx @modelcontextprotocol/inspector pixi run python src/linkedin_mcp_server/main.py --transport streamable-http
+DANGEROUSLY_OMIT_AUTH=true npx @modelcontextprotocol/inspector pixi run python src/linkedin_mcp_server/main.py --transport streamable-http
 ```
 
 This starts the inspector for the MCP Server.

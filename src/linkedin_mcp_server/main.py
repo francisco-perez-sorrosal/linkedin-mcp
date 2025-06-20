@@ -2,9 +2,10 @@
 
 import os
 
+from loguru import logger
 from pathlib import Path
 
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, quote
 from mcp.server.fastmcp import FastMCP
 
 
@@ -52,7 +53,7 @@ def get_url_for_jobs_search(query: str = "Looking for Research Enginer/Machine L
     """
     return compose_url_for_jobs_search(query)
 
-@mcp.resource("linkedinmcpfps://job_search_query")
+@mcp.resource("linkedinmcpfps://job_search_query/{query}")
 def compose_url_for_jobs_search(query: str) -> str:
     """
     Composes the URL to search for jobs in LinkedIn with proper URI encoding.
@@ -61,10 +62,12 @@ def compose_url_for_jobs_search(query: str) -> str:
         query: The search query string for jobs in LinkedIn
         
     Returns:
-        str: Properly encoded URL string
+        str: Properly encoded URL string with a placeholder for the start index.
     """
-    final_query = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search-results/?distance=25&geoId=102277331&keywords={query}&start={}".format(query=query)
-    return quote_plus(final_query) 
+    encoded_query = quote_plus(query)
+    logger.info(f"Encoded query: {encoded_query}")
+    # The double curly braces are escaped to produce a single curly brace for later formatting of the start index
+    return f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search-results/?distance=25&geoId=102277331&keywords={encoded_query}"
 
 @mcp.tool()
 def connect() -> str:

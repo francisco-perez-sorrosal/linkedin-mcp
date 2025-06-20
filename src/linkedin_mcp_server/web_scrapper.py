@@ -23,6 +23,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from linkedin_mcp_server.cache import BasicInMemoryCache
 
 
+# These two URL are the best ones to retrieve jobs without connecting to LinkedIn with your account
+JOB_RETRIEVAL_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search-results/?distance=25&geoId=102277331&keywords=Looking%20for%20Research%20Enginer%2FMachine%20Learning%2FAI%20Engineer%20jobs%20in%20San%20Francisco"
+JOB_URL: str = "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{job_id}"
+
+
 # Load environment variables from .env file
 env_loaded: bool = load_dotenv()
 
@@ -438,7 +443,7 @@ class JobPostingExtractor:
         logger.info(f"Found {len(new_job_ids)} new jobs out of {len(job_ids)} total")
         return new_job_ids
 
-    def retrieve_job_ids_from_linkedin(self, max_pages: int = 5) -> List[str]:
+    def retrieve_job_ids_from_linkedin(self, base_url: str = JOB_RETRIEVAL_URL, max_pages: int = 5) -> List[str]:
         """
         Retrieve job IDs from LinkedIn using requests and BeautifulSoup.
         
@@ -454,10 +459,11 @@ class JobPostingExtractor:
         all_job_ids: Set[str] = set()
         jobs_per_page = 10
         
+        url_with_pagination = base_url + "&start={}"
         for page in range(max_pages):
             try:
-                start_idx = page * jobs_per_page
-                url = JOB_RETRIEVAL_URL.format(start_idx)
+                start_idx = page * jobs_per_page                
+                url = url_with_pagination.format(start_idx)
                 logger.info(f"Scraping job listings page {page + 1}: {url}")
                 
                 # Add random delay between requests
@@ -483,11 +489,6 @@ class JobPostingExtractor:
         duration = time.time() - start_time
         logger.info(f"Found {len(all_job_ids)} unique job IDs in {duration:.2f} seconds")
         return list(all_job_ids)
-
-
-# These two URL are the best ones to retrieve jobs without connecting to LinkedIn with your account
-JOB_RETRIEVAL_URL = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search-results/?distance=25&geoId=102277331&keywords=Looking%20for%20Research%20Enginer%2FMachine%20Learning%2FAI%20Engineer%20jobs%20in%20San%20Francisco&start={}"
-JOB_URL: str = "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{job_id}"
 
 
 if __name__ == "__main__":
