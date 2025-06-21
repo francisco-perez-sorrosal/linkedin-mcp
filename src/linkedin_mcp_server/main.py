@@ -58,9 +58,10 @@ host = os.environ.get("HOST", "0.0.0.0")  # render.com needs '0.0.0.0' specified
 port = int(os.environ.get("PORT", 10000))  # render.com has '10000' as default port
 mcp = FastMCP("linkedin_mcp_server", stateless_http=stateless_http, host=host, port=port)
 
-# NOTE: We have to wrap the resources to be accessible from the prompts
-
 extractor = JobPostingExtractor()
+logger.info(f"JobPostingExtractor initialized!")
+
+# NOTE: We have to wrap the resources to be accessible from the prompts
 
 @mcp.tool()
 def get_url_for_jobs_search(query: str = "Looking for Research Enginer/Machine Learning/AI Engineer jobs in San Francisco") -> str:
