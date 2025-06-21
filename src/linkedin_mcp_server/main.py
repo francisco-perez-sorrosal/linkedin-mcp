@@ -94,7 +94,7 @@ def compose_url_for_jobs_search(query: str) -> str:
     return f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search-results/?distance=25&geoId=102277331&keywords={encoded_query}"
 
 @mcp.tool()
-def get_new_job_ids(url: str, num_pages: int = 1) -> List[str]:
+def get_new_job_ids(url: str, num_pages: int = 1) -> str:
     """
     Gets the new job ids retrieved from the LinkedIn url passed as a parameter, exploring
     the number of pages specified.
@@ -110,7 +110,7 @@ def get_new_job_ids(url: str, num_pages: int = 1) -> List[str]:
     all_job_ids = extractor.retrieve_job_ids_from_linkedin(base_url=url, max_pages=num_pages)
     new_job_ids = extractor.get_new_job_ids(all_job_ids)
     print(f"Found {len(new_job_ids)} new jobs to process")
-    return new_job_ids
+    return ",".join(new_job_ids)
 
 @mcp.tool()
 def get_jobs_raw_metadata(job_ids: List[str]) -> Dict[str, Dict[str, Any]]:
