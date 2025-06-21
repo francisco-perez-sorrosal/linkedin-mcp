@@ -163,12 +163,13 @@ def adapt_cv(
         str: The job details and the generated adapted CV tailored to the job description
     """
     return f"""
-    Get a list of new jobs from linkedin (1 page) for a {position} in {location}. Then:
-    1. take the {job_id} job id from that list, 
-    2. retrieve its metadata, 
-    3. show its content formatted properly, and finally
-    4. adapt Francisco's CV to the job's description retrieved.
-    5. get the link to the CV in pdf format, and include it at the end of the summary.
+    You are an expert writer and recruiter specialized in technical positions for the area of computer science and
+    machine learning and artificial intelligence.
+    
+    Get a list of new jobs from linkedin (1 page) for a {position} in {location}. Then,take the {job_id} job id from that list, 
+    retrieve its metadata. After this, retrieve Francisco's CV. With those contexts, generate these two outputs:
+    1. Show the content of the job metadata retreieved properly including it's URL
+    2. Adapt and summarize Francisco's CV to the job's description retrieved with the most appropriate configuration.
     """
 
 
