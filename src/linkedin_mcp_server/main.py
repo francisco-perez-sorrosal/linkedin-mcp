@@ -66,7 +66,14 @@ logger.info(f"JobPostingExtractor initialized!")
 @mcp.tool()
 def get_url_for_jobs_search(query: str = "Looking for Research Enginer/Machine Learning/AI Engineer jobs in San Francisco") -> str:
     """
-    Gets the URL for the jobs search query from LinkedIn.
+    Generates a properly encoded URL that can be used to search for jobs on LinkedIn.
+    The generated URL is compatible with LinkedIn's job search API.
+    
+    Args:
+        query: The search query string for jobs in LinkedIn.
+               
+    Returns:
+        str: A properly encoded URL to search for jobs on LinkedIn.
     """
     return compose_url_for_jobs_search(query)
 
@@ -89,14 +96,15 @@ def compose_url_for_jobs_search(query: str) -> str:
 @mcp.tool()
 def get_new_job_ids(url: str, num_pages: int = 1) -> List[str]:
     """
-    Gets the new job IDs from LinkedIn.
+    Gets the new job ids retrieved from the LinkedIn url passed as a parameter, exploring
+    the number of pages specified.
     
     Args:
         url: The URL to search for jobs in LinkedIn
-        num_pages: The number of pages to scrape
+        num_pages: The number of pages to retrieve ids from
         
     Returns:
-        List of new job IDs
+        A list with the new job IDs retrieved from the explored pages from the URL
     """
     logger.info("Fetching job listings from LinkedIn...")
     all_job_ids = extractor.retrieve_job_ids_from_linkedin(base_url=url, max_pages=num_pages)
@@ -107,13 +115,14 @@ def get_new_job_ids(url: str, num_pages: int = 1) -> List[str]:
 @mcp.tool()
 def get_jobs_raw_metadata(job_ids: List[str]) -> Dict[str, Dict[str, Any]]:
     """
-    Gets the job raw metadata for the given job IDs.
+    Gets the job raw metadata for the given job IDs passed as parameter.
     
     Args:
         job_ids: List of job IDs to get the job raw metadata for
         
     Returns:
-        Dict of job IDs and their corresponding raw metadata
+        Dict job ids as keys, and the corresponding job metadata information 
+        as values (encoded also as a dictonary)
     """
     return extractor.get_jobs_raw_metadata(job_ids)
 
