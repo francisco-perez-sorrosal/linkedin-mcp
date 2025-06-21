@@ -29,10 +29,10 @@ JOB_URL: str = "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{job_id}
 
 
 # Load environment variables from .env file
-env_loaded: bool = load_dotenv()
+# env_loaded: bool = load_dotenv()
 
-if not env_loaded:
-    raise Exception("Failed to load environment variables from .env file")
+# if not env_loaded:
+#     raise Exception("Failed to load environment variables from .env file")
 
 
 def setup_webdriver() -> WebDriver:
