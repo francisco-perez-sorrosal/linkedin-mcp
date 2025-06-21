@@ -10,11 +10,19 @@ from urllib.parse import quote_plus, quote
 from mcp.server.fastmcp import FastMCP
 
 try:
-    # This works when running as a module
-    from .web_scrapper import JobPostingExtractor
+    from linkedin_mcp_server.web_scrapper import JobPostingExtractor
 except ImportError:
-    # This works when running the file directly
-    from web_scrapper import JobPostingExtractor
+    logger.info("Failed to import JobPostingExtractor from linkedin_mcp_server.web_scrapper")
+    try:
+        from .web_scrapper import JobPostingExtractor
+    except ImportError:
+        logger.info("Failed to import JobPostingExtractor from .web_scrapper")
+        try:
+            from web_scrapper import JobPostingExtractor
+        except ImportError as e:
+            logger.info("Failed to import JobPostingExtractor from web_scrapper. :(((((((((")
+            raise e
+    
     
 # Configure transport and statelessness
 trspt = "stdio"
@@ -34,15 +42,15 @@ match os.environ.get("TRANSPORT", "stdio"):
         stateless_http = False
 
 
-# def find_project_root():
-#     current = Path(__file__).resolve()
-#     while current != current.parent:
-#         if (current / 'pyproject.toml').exists():
-#             return current
-#         current = current.parent
-#     return current
+def find_project_root():
+    current = Path(__file__).resolve()
+    while current != current.parent:
+        if (current / 'pyproject.toml').exists():
+            return current
+        current = current.parent
+    return current
 
-# PROJECT_ROOT = find_project_root()
+PROJECT_ROOT = find_project_root()
 
 
 # Initialize FastMCP server
