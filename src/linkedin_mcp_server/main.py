@@ -8,7 +8,7 @@ from pathlib import Path
 
 from urllib.parse import quote_plus, quote
 from mcp.server.fastmcp import FastMCP
-from .web_scrapper import JobPostingExtractor
+from linkedin_mcp_server.web_scrapper import JobPostingExtractor
 
 # Configure transport and statelessness
 trspt = "stdio"
@@ -104,8 +104,6 @@ def get_jobs_raw_metadata(job_ids: List[str]) -> Dict[str, Dict[str, Any]]:
 
 
 if __name__ == "__main__":
-    # args: Namespace = parse_cli_arguments()
-    
     # Initialize and run the server with the specified transport
     print(f"Starting Linkedin MCP server with {trspt} transport ({host}:{port}) and stateless_http={stateless_http}...")
     mcp.run(transport=trspt)
