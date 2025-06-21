@@ -220,7 +220,17 @@ Get a list of new jobs from linkedin (2 pages) for a research engineer position 
 or simply:
 
 ```text
-Adapt cv to the latest job retrieved
+Adapt Francisco's CV to the latest job retrieved
+
+# or
+
+Adapt Francisco's CV to the first two retrieved job ids
+```
+
+or, as a recruiter, get your posted LinkedIn job id and write:
+
+```text
+Adapt Francisco's CV to this job id 4122691570
 ```
 
 ## License

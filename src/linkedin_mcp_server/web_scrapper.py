@@ -390,7 +390,7 @@ class JobPostingExtractor:
         start_time = time.time()
         
         # Determine number of processes (use 75% of available CPUs)
-        num_processes = max(1, int(cpu_count() * 0.75))
+        num_processes = 2 # max(1, int(cpu_count() * 0.75))
         logger.info(f"Using {num_processes} processes for parallel scraping")
         
         # Create a process pool and map the job IDs to worker processes

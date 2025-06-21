@@ -169,7 +169,7 @@ def adapt_cv(
     Get a list of new jobs from linkedin (1 page) for a {position} in {location}. Then,take the {job_id} job id from that list, 
     retrieve its metadata. After this, retrieve Francisco's CV. With those contexts, generate these two outputs:
     1. Show the content of the job metadata retreieved properly including it's URL
-    2. Adapt and summarize Francisco's CV to the job's description retrieved with the most appropriate configuration.
+    2. Summarize and adapt Francisco's CV to the job's description retrieved with the most appropriate configuration.
     """
 
 
