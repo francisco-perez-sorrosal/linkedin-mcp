@@ -206,13 +206,21 @@ Remember also to set the environment variables in the render.com dashboard:
 
 ```bash
 TRANSPORT=sse
-PORT=8000
+PORT=1000
 ```
 
-Then you can query in Claude Desktop using the `linkedin_mcp_fps` MCP server to get info:
+Then you can query in Claude Desktop using the `linkedin_mcp_fps` MCP server to get info from job ids. Combined with
+the functionality provided by the [MCP Server serving my CV](https://github.com/francisco-perez-sorrosal/cv/tree/mcp) 
+you can ask things like this:
 
 ```text
-TODO
+Get a list of new jobs from linkedin (2 pages) for a research engineer position in ml/ai in San Francisco, take the last job id from that list, retrieve its metadata, show its content formatted properly, and finally adapt Francisco's CV to the job's description retrieved.
+```
+
+or simply:
+
+```text
+Adapt cv to the latest job retrieved
 ```
 
 ## License

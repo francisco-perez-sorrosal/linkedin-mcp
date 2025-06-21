@@ -127,6 +127,51 @@ def get_jobs_raw_metadata(job_ids: List[str]) -> Dict[str, Dict[str, Any]]:
     return extractor.get_jobs_raw_metadata(job_ids)
 
 
+@mcp.tool()
+def adapt_cv_to_latest_job(
+    position: str = "Research Engineer or ML Engineer or AI Engineer",
+    location: str = "San Francisco",
+    job_id: str = "first") -> str:
+    """
+    Adapts Francisco Perez-Sorrosal's CV to the position of the job description retrieved from linkedin 
+    for the particular location specified and based on the job id.
+    
+    Args:
+        position: The position to search for jobs for
+        location: The location where the job should be located
+        job_id: The job id to retrieve the metadata for
+        
+    Returns:
+        str: The job details and the generated adapted CV tailored to the job description
+    """
+    return adapt_cv(position, location, job_id)
+
+@mcp.prompt()
+def adapt_cv(
+    position: str = "Research Engineer or ML Engineer or AI Engineer",
+    location: str = "San Francisco",
+    job_id: str = "first"
+) -> str:
+    """Prompt for getting the latest jobgenerating a summary of Francisco Perez-Sorrosal's CV based on the specified parameters.
+    
+    Args:
+        position: The position to search for jobs for
+        location: The location to search for jobs for
+        job_id: The job id to retrieve the metadata for
+        
+    Returns:
+        str: The job details and the generated adapted CV tailored to the job description
+    """
+    return f"""
+    Get a list of new jobs from linkedin (1 page) for a {position} in {location}. Then:
+    1. take the {job_id} job id from that list, 
+    2. retrieve its metadata, 
+    3. show its content formatted properly, and finally
+    4. adapt Francisco's CV to the job's description retrieved.
+    5. get the link to the CV in pdf format, and include it at the end of the summary.
+    """
+
+
 if __name__ == "__main__":
     # Initialize and run the server with the specified transport
     print(f"Starting Linkedin MCP server with {trspt} transport ({host}:{port}) and stateless_http={stateless_http}...")
