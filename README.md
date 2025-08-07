@@ -2,6 +2,10 @@
 
 A Python-based MCP (Model Context Protocol) server that gets stuff from your LinkedIn profile and integrates with the Anthropic API for potential analysis tasks. This project follows the `src` layout for Python packaging.
 
+<a href="https://glama.ai/mcp/servers/@francisco-perez-sorrosal/linkedin-mcp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@francisco-perez-sorrosal/linkedin-mcp/badge" alt="LinkedIn Server MCP server" />
+</a>
+
 # TL;DR Install for Claude Desktop Access to the LinkedIn profile
 
 ```bash
