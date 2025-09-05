@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(echo $TERM)",
+      "Bash(tty)",
+      "WebSearch"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
