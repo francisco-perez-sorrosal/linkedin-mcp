@@ -320,7 +320,7 @@ packages:
 - pypi: .
   name: linkedin-mcp-server
   version: 0.1.0
-  sha256: 008075120cbdcc545de2db8c12b74a9ee60a112df2fdb87dd526cc0fc1a68d86
+  sha256: 10f7ca3a86e8fc56a58ae358e470f013f505f2fd38a8a9fce520fa731f7fe44e
   requires_dist:
   - httpx>=0.28.1,<0.29
   - mcp[cli]>=1.9.2,<2

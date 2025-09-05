@@ -12,28 +12,26 @@ from mcp.server.fastmcp import FastMCP
 try:
     from linkedin_mcp_server.web_scrapper import JobPostingExtractor
 except ImportError:
-    logger.info("Failed to import JobPostingExtractor from linkedin_mcp_server.web_scrapper")
+    logger.warning("Failed to import JobPostingExtractor from linkedin_mcp_server.web_scrapper. Trying to import from .web_scrapper")
     try:
         from .web_scrapper import JobPostingExtractor
     except ImportError:
-        logger.info("Failed to import JobPostingExtractor from .web_scrapper")
+        logger.warning("Failed to import JobPostingExtractor from .web_scrapper. Trying to import from web_scrapper")
         try:
             from web_scrapper import JobPostingExtractor
         except ImportError as e:
-            logger.info("Failed to import JobPostingExtractor from web_scrapper. :(((((((((")
+            logger.error("Failed to import JobPostingExtractor from web_scrapper. :(((((((((")
             raise e
     
     
 # Configure transport and statelessness
 trspt = "stdio"
 stateless_http = False
-match os.environ.get("TRANSPORT", "stdio"):
-    case "stdio":
-        trspt = "stdio"
-        stateless_http = False
+match os.environ.get("TRANSPORT", trspt):
     case "sse":
         trspt = "sse"
         stateless_http = False
+        logger.warning("SSE transport is deprecated. Using stdio (locally) or streamable-http (remote) instead.")
     case "streamable-http":
         trspt = "streamable-http"
         stateless_http = True
@@ -56,7 +54,7 @@ PROJECT_ROOT = find_project_root()
 # Initialize FastMCP server
 host = os.environ.get("HOST", "0.0.0.0")  # render.com needs '0.0.0.0' specified as host when deploying the service
 port = int(os.environ.get("PORT", 10000))  # render.com has '10000' as default port
-mcp = FastMCP("linkedin_mcp_server", stateless_http=stateless_http, host=host, port=port)
+mcp = FastMCP("linkedin_mcp_fps", stateless_http=stateless_http, host=host, port=port)
 
 extractor = JobPostingExtractor()
 logger.info(f"JobPostingExtractor initialized!")
@@ -64,34 +62,40 @@ logger.info(f"JobPostingExtractor initialized!")
 # NOTE: We have to wrap the resources to be accessible from the prompts
 
 @mcp.tool()
-def get_url_for_jobs_search(query: str = "Looking for Research Enginer/Machine Learning/AI Engineer jobs in San Francisco") -> str:
+def get_url_for_jobs_search(location: str = "San Francisco", distance: int = 25, query: str = "AI Research Engineer") -> str:
     """
     Generates a properly encoded URL that can be used to search for jobs on LinkedIn.
     The generated URL is compatible with LinkedIn's job search API.
     
     Args:
         query: The search query string for jobs in LinkedIn.
+        location: The location to search for jobs in LinkedIn
+        distance: The distance from the location to search for jobs in LinkedIn
                
     Returns:
         str: A properly encoded URL to search for jobs on LinkedIn.
     """
-    return compose_url_for_jobs_search(query)
+    return compose_job_search_url(location, distance, query)
 
-@mcp.resource("linkedinmcpfps://job_search_query/{query}")
-def compose_url_for_jobs_search(query: str) -> str:
+@mcp.resource("linkedinmcpfps://job_search_query/{location}/{distance}/{query}")
+def compose_job_search_url(location: str="San Francisco", distance: int=25, query: str="AI Research Engineer") -> str:
     """
     Composes the URL to search for jobs in LinkedIn with proper URI encoding.
     
     Args:
+        location: The location to search for jobs in LinkedIn
+        distance: The distance from the location to search for jobs in LinkedIn
         query: The search query string for jobs in LinkedIn
         
     Returns:
         str: Properly encoded URL string with a placeholder for the start index.
     """
+    encoded_location = quote_plus(location)
+    encoded_distance = quote_plus(str(distance))
     encoded_query = quote_plus(query)
     logger.info(f"Encoded query: {encoded_query}")
     # The double curly braces are escaped to produce a single curly brace for later formatting of the start index
-    return f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search-results/?distance=25&geoId=102277331&keywords={encoded_query}"
+    return f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search-results/?location={encoded_location}&distance={encoded_distance}&keywords={encoded_query}"
 
 @mcp.tool()
 def get_new_job_ids(url: str, num_pages: int = 1) -> str:
@@ -109,7 +113,7 @@ def get_new_job_ids(url: str, num_pages: int = 1) -> str:
     logger.info("Fetching job listings from LinkedIn...")
     all_job_ids = extractor.retrieve_job_ids_from_linkedin(base_url=url, max_pages=num_pages)
     new_job_ids = extractor.get_new_job_ids(all_job_ids)
-    print(f"Found {len(new_job_ids)} new jobs to process")
+    logger.info(f"Found {len(new_job_ids)} new jobs to process")
     return ",".join(new_job_ids)
 
 @mcp.tool()
@@ -152,7 +156,7 @@ def adapt_cv(
     location: str = "San Francisco",
     job_id: str = "first"
 ) -> str:
-    """Prompt for getting the latest jobgenerating a summary of Francisco Perez-Sorrosal's CV based on the specified parameters.
+    """Prompt for getting the latest job generating a summary of Francisco Perez-Sorrosal's CV based on the specified parameters.
     
     Args:
         position: The position to search for jobs for
@@ -175,5 +179,5 @@ def adapt_cv(
 
 if __name__ == "__main__":
     # Initialize and run the server with the specified transport
-    print(f"Starting Linkedin MCP server with {trspt} transport ({host}:{port}) and stateless_http={stateless_http}...")
+    logger.info(f"Starting Linkedin MCP server with {trspt} transport ({host}:{port}) and stateless_http={stateless_http}...")
     mcp.run(transport=trspt)

@@ -153,13 +153,13 @@ docker build -t linkedin-mcp-server .
 
 TODO: Rewrite this if necessary. Docker support not yet done.
 
-## MCP Server Configuration
+## MCP Server Installation
 
 ### Local Configuration for Claude Desktop
 
 ```json
 {
-  "linkedin_francisco_perez_sorrosal": {
+  "linkedin_mcp_fps": {
     "command": "uv",
     "args": [
       "run",
@@ -173,13 +173,13 @@ TODO: Rewrite this if necessary. Docker support not yet done.
 }
 ```
 
-### Remote Configuration for Claude Desktop
+### Remote Configuration for Claude Desktop or Claude Code
 
 For connecting to a remote MCP server:
 
 ```json
 {
-  "linkedin_francisco_perez_sorrosal": {
+  "linkedin_mcp_fps": {
     "command": "npx",
     "args": ["mcp-remote", "http://localhost:10000/mcp"]
   }
@@ -188,7 +188,7 @@ For connecting to a remote MCP server:
 
 > **Note**: Update the host and port as needed for your deployment.
 
-Currently I'm using `render.com` to host the MCP server. The configuration is in the `config/claude.json` file.
+Currently I'm using `render.com` to host the MCP server. The configuration for Claude is in the `config/claude.json` file. It uses sse but it is deprecated now.
 
 Render requires `requirements.txt` to be present in the root directory. You can generate it using:
 
@@ -209,8 +209,9 @@ TRANSPORT=sse
 PORT=1000
 ```
 
-Then you can query in Claude Desktop using the `linkedin_mcp_fps` MCP server to get info from job ids. Combined with
-the functionality provided by the [MCP Server serving my CV](https://github.com/francisco-perez-sorrosal/cv/tree/mcp) 
+## User Guide
+
+After installing the MCP server, you can access its functionality in Claude Desktop or Code using the `linkedin_mcp_fps` MCP server to get info from job ids. Combined with the functionality provided by the [MCP Server serving my CV](https://github.com/francisco-perez-sorrosal/cv/tree/mcp) 
 you can ask things like this:
 
 ```text
