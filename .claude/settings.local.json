@@ -3,7 +3,20 @@
     "allow": [
       "Bash(echo $TERM)",
       "Bash(tty)",
-      "WebSearch"
+      "WebSearch",
+      "WebFetch(domain:www.anthropic.com)",
+      "Bash(npx @anthropic-ai/dxt init --yes)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(python:*)",
+      "Bash(pixi run python:*)",
+      "Bash(pixi run:*)",
+      "Bash(pixi add:*)",
+      "Read(//usr/bin/**)",
+      "Bash(/usr/bin/python3:*)",
+      "Read(//opt/homebrew/bin/**)",
+      "Bash(pixi info:*)",
+      "Bash(PYTHONPATH:*)"
     ],
     "deny": [],
     "ask": []

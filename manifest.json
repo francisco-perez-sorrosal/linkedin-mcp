@@ -1,0 +1,53 @@
+{
+  "dxt_version": "0.1",
+  "name": "linkedin-mcp-fps",
+  "display_name": "FPS LinkedIn MCP Server",
+  "version": "0.1.0",
+  "description": "MCP server that provides LinkedIn job search, scraping, and CV adaptation functionality",
+  "long_description": "A comprehensive MCP server that enables LinkedIn job searching, detailed job metadata extraction, and CV adaptation based on job requirements. Features include job search URL generation, job ID retrieval, job metadata scraping with caching, and intelligent CV customization.",
+  "author": {
+    "name": "Francisco Perez Sorrosal",
+    "email": "fperezsorrosal@gmail.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/francisco-perez-sorrosal/linkedin-mcp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/francisco-perez-sorrosal/linkedin-mcp.git"
+  },
+  "keywords": ["linkedin", "jobs", "cv", "resume", "career", "mcp", "scraping"],
+  "server": {
+    "type": "python",
+    "entry_point": "src/linkedin_mcp_server/main.py",
+    "mcp_config": {
+      "command": "python3",
+      "args": [
+        "${__dirname}/src/linkedin_mcp_server/main.py"
+      ],
+      "env": {
+        "PYTHONPATH": "${__dirname}/src/linkedin_mcp_server/lib:${__dirname}/src:${__dirname}"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "get_url_for_jobs_search",
+      "description": "Generate LinkedIn job search URLs with location, distance, and query parameters"
+    },
+    {
+      "name": "get_new_job_ids", 
+      "description": "Retrieve job IDs from LinkedIn job search pages with pagination support"
+    },
+    {
+      "name": "get_jobs_raw_metadata",
+      "description": "Extract detailed job metadata including title, company, location, description, and requirements"
+    },
+    {
+      "name": "adapt_cv_to_latest_job",
+      "description": "Adapt Francisco's CV to match specific job requirements and descriptions"
+    }
+  ],
+  "compatibility": {
+    "python": ">=3.11"
+  }
+}

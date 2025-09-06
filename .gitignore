@@ -293,3 +293,6 @@ linkedin_test_*.txt
 linkedin_test_*.html
 linkedin_test_*.jsonl
 linkedin_test_*.json
+
+# Dependencies for the bundle
+src/linkedin_mcp_server/lib/

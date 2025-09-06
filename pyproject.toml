@@ -41,6 +41,13 @@ linkedin_mcp_server = { path = ".", editable = true }
 [tool.pixi.tasks]
 mcps="python src/linkedin_mcp_server/main.py"
 linkedin_scrapper="python src/linkedin_mcp_server/web_scrapper.py"
+# MCP Bundle
+bundle = "uv lock ; rm -rf requirements.txt ;uv export --no-hashes --format requirements-txt > requirements.txt ; pip install -r requirements.txt --target src/linkedin_mcp_server/lib --upgrade --force-reinstall"
+pack = "npx @anthropic-ai/dxt pack . dxt-package/linkedin-mcp-fps.dxt"
+test = "python src/linkedin_mcp_server/main.py --debug"
+
+[tool.pixi.dependencies]
+pip = ">=25.2,<26"
 
 [tool.hatch.metadata]
 allow-direct-references = true
