@@ -10,6 +10,7 @@ from pathlib import Path
 
 from urllib.parse import quote_plus, quote
 from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp.prompts import base
 
 from linkedin_mcp_server.web_scrapper import JobPostingExtractor
 
@@ -159,12 +160,12 @@ def get_jobs_raw_metadata(job_ids: List[str]) -> Dict[str, Any]:
 
 
 @mcp.tool()
-def adapt_cv_to_latest_job(
+def tailor_cv_to_latest_job(
     position: str = "Research Engineer or ML Engineer or AI Engineer",
     location: str = "San Francisco",
     job_id: str = "first") -> str:
     """
-    Adapts Francisco Perez-Sorrosal's CV to the position of the job description retrieved from LinkedIn 
+    Tailors Francisco Perez-Sorrosal's CV to the position of the job description retrieved from LinkedIn 
     for the particular location specified and based on the job id.
     
     Args:
@@ -176,15 +177,17 @@ def adapt_cv_to_latest_job(
         str: The job details and the generated adapted CV tailored to the job description
     """
     logger.info(f"Adapting CV for position: {position}, location: {location}, job_id: {job_id}")
-    return adapt_cv(position, location, job_id)
+    return tailor_cv_to_job(position, location, job_id)
 
+# TODO Maybe move this to the cv MCP Server and re-adapt the prompt.
 @mcp.prompt()
-def adapt_cv(
+def tailor_cv_to_job(
     position: str = "Research Engineer or ML Engineer or AI Engineer",
     location: str = "San Francisco",
-    job_id: str = "first"
-) -> str:
-    """Prompt for getting the latest job generating a summary of Francisco Perez-Sorrosal's CV based on the specified parameters.
+    job_id: str = "first",
+    pages: int = 1
+) -> list[base.Message]:
+    """Prompt for getting the latest job generating a tailored version of Francisco Perez-Sorrosal's CV based on the specified parameters.
     
     Args:
         position: The position to search for jobs for
@@ -192,17 +195,51 @@ def adapt_cv(
         job_id: The job id to retrieve the metadata for
         
     Returns:
-        str: The job details and the generated adapted CV tailored to the job description
+        list[base.Message]: The job details and the generated adapted CV tailored to the job description
     """
-    return f"""
+    return [base.UserMessage(f"""
     You are an expert writer and recruiter specialized in technical positions for the area of computer science and
     machine learning and artificial intelligence.
     
-    Get a list of new jobs from linkedin (1 page) for a {position} in {location}. Then,take the {job_id} job id from that list, 
-    retrieve its metadata. After this, retrieve Francisco's CV. With those contexts, generate these two outputs:
-    1. Show the content of the job metadata retreieved properly including it's URL
-    2. Summarize and adapt Francisco's CV to the job's description retrieved with the most appropriate configuration.
-    """
+    You are going to carefully examine, tailor, and finally adapt Francisco's CV -importantly without changing it's original content- to the job description retrieved from LinkedIn following these steps:
+    
+    <steps>
+    1. Get a list of new jobs from linkedin ({pages} pages) for a {position} in {location}.
+    2. Then, take the {job_id} job id from that list and retrieve its metadata. 
+    3. Finally, retrieve Francisco's CV content using the tools from the cv MCP Server. 
+    </steps>
+    
+    With this context, generate these four outputs in form of Markdown sections:
+    
+    <outputs>
+    1. A header with the job id (plus the URL link) and the job title.
+    2. A comprehensive and detailed table with all the job metadata retreieved properly including it's URL in mardown format.
+    3. Tailor, without changing it's original content, Francisco's CV to the job's description retrieved using a pretty visually appealing structured markdown format.
+    4. An evaluation of the suitability of the tailored CV to the job's description retrieved. Use an scale from 0 to 10 (where 10 is the best) for each one of the criteria below and write it in a table with the following columns: Criterion, Score (0-10), and Reasoning (One sharp and concise sentence for each criterion)
+    <criteria>
+        - Relevance to the job's position
+        - Relevance to the job's description
+        - Relevance to the job's requirements
+        - Relevance to the job's experience
+        - Relevance to the job's seniority level
+        - Relevance to the job's education
+        - Relevance to the job's company
+        - Relevance to the job's salary
+        - Relevance to the job's benefits
+        - Relevance to the job's culture
+        - Relevance to the job's values, mission, and vision
+        - Relevance to the job's team and leadership
+        - Relevance to the job's growth
+        - Relevance to the job's challenges and opportunities
+        - Relevance to the job's technology, tools, and methodology
+    </criteria>
+    5. A final section with comprehensive reasoning about why Francisco's CV is so appealing and suitable to the job's description retrieved.
+    </outputs>
+    
+    IMPORTANT:
+    - Be extremely careful with the content of the CV. Do not add any new information that is not in the original CV.
+    - The CV must be tailored mainly to the job's description retrieved, position and requirements.
+    """)]
 
 
 if __name__ == "__main__":

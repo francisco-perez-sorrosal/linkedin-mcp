@@ -43,7 +43,7 @@
       "description": "Extract detailed job metadata including title, company, location, description, and requirements"
     },
     {
-      "name": "adapt_cv_to_latest_job",
+      "name": "tailor_cv_to_latest_job",
       "description": "Adapt Francisco's CV to match specific job requirements and descriptions"
     }
   ],
