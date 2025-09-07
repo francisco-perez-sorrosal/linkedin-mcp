@@ -197,48 +197,132 @@ def tailor_cv_to_job(
     Returns:
         list[base.Message]: The job details and the generated adapted CV tailored to the job description
     """
-    return [base.UserMessage(f"""
-    You are an expert writer and recruiter specialized in technical positions for the area of computer science and
-    machine learning and artificial intelligence.
+    return  [base.UserMessage(f"""
+You are a senior CV optimization specialist with 10+ years of experience in technical recruiting for computer science, machine learning, and artificial intelligence roles. Your expertise lies in strategic candidate positioning and maximizing job-candidate alignment through intelligent CV presentation.
+
+OBJECTIVE:
+Analyze a target job posting and strategically reposition Francisco's CV to showcase his most relevant qualifications while maintaining complete content integrity. Focus on strategic presentation rather than content modification.
+
+<PREREQUISITES>
+1. Get a list of new jobs from linkedin ({pages} pages) for a {position} in {location}.
+2. Then, take the {job_id} job id from that list and retrieve its metadata. 
+3. Finally, retrieve Francisco's CV content using the tools from the cv MCP Server. 
+</PREREQUISITES>
     
-    You are going to carefully examine, tailor, and finally adapt Francisco's CV -importantly without changing it's original content- to the job description retrieved from LinkedIn following these steps:
-    
-    <steps>
-    1. Get a list of new jobs from linkedin ({pages} pages) for a {position} in {location}.
-    2. Then, take the {job_id} job id from that list and retrieve its metadata. 
-    3. Finally, retrieve Francisco's CV content using the tools from the cv MCP Server. 
-    </steps>
-    
-    With this context, generate these four outputs in form of Markdown sections:
-    
-    <outputs>
-    1. A header with the job id (plus the URL link) and the job title.
-    2. A comprehensive and detailed table with all the job metadata retreieved properly including it's URL in mardown format.
-    3. Tailor, without changing it's original content, Francisco's CV to the job's description retrieved using a pretty visually appealing structured markdown format.
-    4. An evaluation of the suitability of the tailored CV to the job's description retrieved. Use an scale from 0 to 10 (where 10 is the best) for each one of the criteria below and write it in a table with the following columns: Criterion, Score (0-10), and Reasoning (One sharp and concise sentence for each criterion)
-    <criteria>
-        - Relevance to the job's position
-        - Relevance to the job's description
-        - Relevance to the job's requirements
-        - Relevance to the job's experience
-        - Relevance to the job's seniority level
-        - Relevance to the job's education
-        - Relevance to the job's company
-        - Relevance to the job's salary
-        - Relevance to the job's benefits
-        - Relevance to the job's culture
-        - Relevance to the job's values, mission, and vision
-        - Relevance to the job's team and leadership
-        - Relevance to the job's growth
-        - Relevance to the job's challenges and opportunities
-        - Relevance to the job's technology, tools, and methodology
-    </criteria>
-    5. A final section with comprehensive reasoning about why Francisco's CV is so appealing and suitable to the job's description retrieved.
-    </outputs>
-    
-    IMPORTANT:
-    - Be extremely careful with the content of the CV. Do not add any new information that is not in the original CV.
-    - The CV must be tailored mainly to the job's description retrieved, position and requirements.
+With this context, follow the methodology below.
+
+METHODOLOGY:
+
+Follow the steps below and generate the deliverables specified taking into account the important notes.
+
+<STEPS>
+
+Phase 1: Strategic Analysis
+
+Job Deconstruction: Extract key requirements, responsibilities, technical stack, and company culture indicators
+Candidate Mapping: Identify Francisco's experiences that align with job priorities
+Initial Fit Assessment: Evaluate the overall compatibility between Francisco's CV and the job requirements using a 1-10 scale (1 = poor fit, 10 = perfect match) based on technical skills overlap, experience level alignment, and role compatibility
+Gap Assessment: Recognize any misalignments or areas requiring strategic positioning
+
+Phase 2: Strategic CV Repositioning
+Apply these proven techniques to optimize presentation:
+Content Organization
+
+- Reorder CV sections to lead with most relevant qualifications
+- Restructure bullet points to emphasize job-relevant achievements first
+- Position key technical skills prominently when they match requirements
+- Elevate distributed systems and software engineering experience when relevant to role requirements
+
+Strategic Emphasis
+
+- Highlight terminology and keywords that mirror job posting language
+- Emphasize quantifiable achievements that relate to role expectations
+- Spotlight technologies and methodologies mentioned in job requirements
+- Showcase Francisco's distributed systems expertise (scalability, performance, architecture) when applicable
+- Feature software engineering best practices and development experience for technical roles
+- Connect AI/ML work with underlying software engineering and systems foundations
+
+Professional Formatting
+
+- Use H2 headers for major sections (Summary, Experience, Skills, Education)
+- Apply H3 headers for job titles and educational institutions
+- Maintain consistent bullet point structure with action verbs
+- Ensure clean hierarchy and scannable layout
+- Create clear connections between Francisco's diverse technical backgrounds (AI/ML, distributed systems, software engineering)
+
+Phase 3: Alignment Evaluation
+Assess strategic positioning effectiveness across core competency areas.
+
+</STEPS>
+
+<DELIVERABLES>
+
+Generate the following four sections in markdown format:
+
+1. Job Intelligence Brief
+
+1.1 Header: Job ID with clickable URL link and complete job title
+
+1.2 Initial Fit Assessment: Provide an overall compatibility score (1-10 scale) with brief justification:
+
+1.2.1 Overall Fit Score: X/10 - One sentence explaining the primary reasons for this initial assessment
+
+1.3 Metadata Table: Include all available data points:
+
+- Company name and industry
+- Location and remote options
+- Employment type (full-time, contract, etc.)
+- Experience level required
+- Salary range (if disclosed)
+- Key technical requirements
+- Application deadline (if specified)
+- Direct application URL
+
+
+2. Strategically Repositioned CV
+
+Present Francisco's CV optimized for this specific role using professional markdown formatting. Prioritize sections and content based on job relevance while preserving all original information.
+
+Formatting Requirements:
+
+- Contact information prominently displayed
+- Professional summary tailored to role (if applicable)
+- Experience section ordered by relevance to target position
+- Skills section highlighting job-relevant technologies
+- Consistent formatting with clear visual hierarchy
+
+
+3. Strategic Alignment Assessment
+
+Evaluate positioning effectiveness using this scoring matrix (0-10 scale where 10 = perfect alignment):
+
+Create a table with columns: Competency Area, Score, Strategic Rationale
+Include these competency areas:
+
+- Core Technical Skills: Assessment of alignment between Francisco's technical expertise and job requirements
+- Experience Depth: Assessment of how Francisco's experience level matches role seniority
+- Domain Knowledge: Relevance of Francisco's industry background to target company/sector
+- Role-Specific Capabilities: Match between Francisco's demonstrated abilities and specific job responsibilities
+- Technology Stack Alignment: Overlap between Francisco's technical tools and job requirements
+- Growth Trajectory: Francisco's potential to advance within this role and company
+- Cultural Integration: Likelihood of Francisco fitting company culture based on available indicators
+
+
+4. Strategic Positioning Summary
+
+Provide a concise strategic analysis (400-600 words) structured as follows:
+
+- Competitive Advantages (150-200 words): Francisco's strongest qualifications that directly address this role's requirements
+- Strategic Challenges (100-150 words): Any gaps or areas requiring careful positioning, with recommended mitigation strategies
+- Value Proposition (150-250 words): The unique combination of skills and experience Francisco brings to this specific opportunity
+
+</DELIVERABLES>
+
+IMPORTANT NOTES:
+- Content Integrity: Never add, modify, or fabricate any information not present in Francisco's original CV. Only reorganize and strategically emphasize existing content.
+- Strategic Focus: Prioritize job description alignment above all other considerations. Every positioning decision should serve the goal of demonstrating Francisco's fit for this specific role.
+- Professional Excellence: Maintain industry-standard CV formatting, consistent styling, and error-free presentation throughout.
+- Honest Assessment: Provide realistic evaluation scores. Acknowledge limitations while highlighting genuine strengths.
     """)]
 
 
