@@ -1,8 +1,8 @@
 {
-  "dxt_version": "0.1",
+  "manifest_version": "0.1",
   "name": "linkedin-mcp-fps",
   "display_name": "FPS LinkedIn MCP Server",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "MCP server that provides LinkedIn job search, scraping, and CV adaptation functionality",
   "long_description": "A comprehensive MCP server that enables LinkedIn job searching, detailed job metadata extraction, and CV adaptation based on job requirements. Features include job search URL generation, job ID retrieval, job metadata scraping with caching, and intelligent CV customization.",
   "author": {
@@ -25,7 +25,7 @@
         "${__dirname}/src/linkedin_mcp_server/main.py"
       ],
       "env": {
-        "PYTHONPATH": "${__dirname}/src/linkedin_mcp_server/lib:${__dirname}/src:${__dirname}"
+        "PYTHONPATH": "${__dirname}/lib:${__dirname}/src:${__dirname}"
       }
     }
   },
@@ -35,7 +35,7 @@
       "description": "Generate LinkedIn job search URLs with location, distance, and query parameters"
     },
     {
-      "name": "get_new_job_ids", 
+      "name": "get_new_job_ids",
       "description": "Retrieve job IDs from LinkedIn job search pages with pagination support"
     },
     {
@@ -43,11 +43,17 @@
       "description": "Extract detailed job metadata including title, company, location, description, and requirements"
     },
     {
-      "name": "tailor_cv_to_latest_job",
+      "name": "tailor_cv",
       "description": "Adapt Francisco's CV to match specific job requirements and descriptions"
     }
   ],
+  "prompts": [
+    {
+      "name": "tailor_cv_to_job",
+      "text": "Prompt for getting the latest job generating a tailored version of Francisco Perez-Sorrosal's CV based on the specified parameters."
+    }
+  ],
   "compatibility": {
-    "python": ">=3.11"
+    "python": ">=3.13"
   }
 }

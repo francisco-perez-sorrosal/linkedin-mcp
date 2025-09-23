@@ -160,28 +160,31 @@ def get_jobs_raw_metadata(job_ids: List[str]) -> Dict[str, Any]:
 
 
 @mcp.tool()
-def tailor_cv_to_latest_job(
+def tailor_cv(
+    job_description: str = "",
     position: str = "Research Engineer or ML Engineer or AI Engineer",
     location: str = "San Francisco",
-    job_id: str = "first") -> str:
+    job_id: str = "first") -> list[base.Message]:
     """
-    Tailors Francisco Perez-Sorrosal's CV to the position of the job description retrieved from LinkedIn 
-    for the particular location specified and based on the job id.
-    
+    Tailors Francisco Perez-Sorrosal's CV to the position of the job description passed as parameter
+    or retrieved from LinkedIn (for the particular location specified and based on the job id).
+
     Args:
+        job_description: The job description to adapt the CV to (if not provided, use the job id to retrieve the job description)
         position: The position to search for jobs for (required)
         location: The location where the job should be located (required)
         job_id: The job id to retrieve the metadata for or "first"/"latest" (required)
-        
+
     Returns:
-        str: The job details and the generated adapted CV tailored to the job description
+        list[base.Message]: Instructions for CV tailoring process
     """
-    logger.info(f"Adapting CV for position: {position}, location: {location}, job_id: {job_id}")
-    return tailor_cv_to_job(position, location, job_id)
+    logger.info(f"Adapting CV for position: {position}, location: {location}, job_id: {job_id}, job_description: {job_description}")
+    return tailor_cv_to_job(job_description, position, location, job_id)
 
 # TODO Maybe move this to the cv MCP Server and re-adapt the prompt.
 @mcp.prompt()
 def tailor_cv_to_job(
+    job_description: str = "",
     position: str = "Research Engineer or ML Engineer or AI Engineer",
     location: str = "San Francisco",
     job_id: str = "first",
@@ -190,9 +193,11 @@ def tailor_cv_to_job(
     """Prompt for getting the latest job generating a tailored version of Francisco Perez-Sorrosal's CV based on the specified parameters.
     
     Args:
+        job_description: The job description to adapt the CV to (if not provided, use the job id to retrieve the job description)
         position: The position to search for jobs for
         location: The location to search for jobs for
         job_id: The job id to retrieve the metadata for
+        pages: The number of pages to retrieve the job description from
         
     Returns:
         list[base.Message]: The job details and the generated adapted CV tailored to the job description
@@ -204,8 +209,13 @@ OBJECTIVE:
 Analyze a target job posting and strategically reposition Francisco's CV to showcase his most relevant qualifications while maintaining complete content integrity. Focus on strategic presentation rather than content modification.
 
 <PREREQUISITES>
-1. Get a list of new jobs from linkedin ({pages} pages) for a {position} in {location}.
-2. Then, take the {job_id} job id from that list and retrieve its metadata. 
+1. If the job description is not provided:
+    1.1. Get a list of new jobs from linkedin ({pages} pages) for a {position} in {location}.
+    1.2. Then, take the {job_id} job id from that list and retrieve its metadata context. 
+
+2. If the job description is provided:
+    2.1. Use this job description provided as metadata context: {job_description}
+
 3. Finally, retrieve Francisco's CV content using the tools from the cv MCP Server. 
 </PREREQUISITES>
     

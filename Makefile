@@ -6,8 +6,10 @@ all: build
 
 build:
 	pixi install
-	pixi run bundle
+	pixi run update-mcpb-deps
+	pixi run mcp-bundle
 	pixi run pack
 
 clean:
-	rm -rf dxt-package/*.dxt
+	pixi clean
+	rm -rf mcpb-package/*.mcpb

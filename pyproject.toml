@@ -7,14 +7,13 @@ authors = [
     {name = "Francisco Perez Sorrosal", email = "fperezsorrosal@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License", # Or your preferred license
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Framework :: FastAPI",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
@@ -42,8 +41,9 @@ linkedin_mcp_server = { path = ".", editable = true }
 mcps="python src/linkedin_mcp_server/main.py"
 linkedin_scrapper="python src/linkedin_mcp_server/web_scrapper.py"
 # MCP Bundle
-bundle = "uv lock ; rm -rf requirements.txt ;uv export --no-hashes --format requirements-txt > requirements.txt ; pip install -r requirements.txt --target src/linkedin_mcp_server/lib --upgrade --force-reinstall"
-pack = "npx @anthropic-ai/dxt pack . dxt-package/linkedin-mcp-fps.dxt"
+update-mcpb-deps = "pixi run uv sync && pixi run uv sync && pixi run uv export --no-hashes --format requirements-txt > requirements.txt"
+mcp-bundle="rm -rf lib/ && mkdir -p lib && pixi run python -m pip install -r requirements.txt --target lib --upgrade --force-reinstall"
+pack = "npx @anthropic-ai/mcpb pack . mcpb-package/linkedin-mcp-fps.mcpb"
 test = "python src/linkedin_mcp_server/main.py --debug"
 
 [tool.pixi.dependencies]

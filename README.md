@@ -40,7 +40,7 @@ e.g. TODO
 
 ## Prerequisites
 
-- Python 3.11+
+- Python 3.13+
 - [Pixi](https://pixi.sh/) (for dependency management and task execution)
 - uv (for building the MCP bundle)
 - Docker (optional, for containerization)
@@ -162,36 +162,36 @@ TODO: Rewrite this if necessary. Docker support not yet done.
 
 ### Local Installation with MCP
 
-#### Init the dxt
+#### Init the mcpb
 
-Init dxt project with a manifest
+Init mcpb project with a manifest
 
 ```sh
-npx @anthropic-ai/dxt init --yes
+npx @anthropic-ai/mcpb init --yes
 ```
 
 **Note** When creating the manifest, in the `mcp_config` section, put the full path to the python interpreter ->  `"command": "/Users/fperez/.pyenv/shims/python"`
 
-#### Bundle Python libs and Package Project as dxt
+#### Bundle Python libs and Package Project as mcpb
 
 ```sh
 pixi install
-pixi run bundle
+pixi run mcp-bundle
 pixi run pack
 ```
 
-The output file `linkedin-mcp-fps.dxt` is created on the `dxt-package` directory. Alternatively, download the `linkedin-mcp-fps.dxt` file from releases (TODO).
+The output file `linkedin-mcp-fps.mcpb` is created on the `mcpb-package` directory. Alternatively, download the `linkedin-mcp-fps.dxt` file from releases (TODO).
 
 With the packaged extension:
 
-1. Double-click the `.dxt` file to install it in Claude Desktop
+1. Double-click the `.mcpb` file to install it in Claude Desktop
 2. Alternatively, drag and drop it to Claude Desktop Settings/Extensions section
 3. Restart Claude Desktop (In new Claude versions it's not necessary)
 4. The extension should appear in your MCP servers list
 
 ### Extension Requirements
 
-This extension requires Python 3.11+ and includes all necessary dependencies bundled.
+This extension requires Python 3.13+ and includes all necessary dependencies bundled.
 
 
 ### Dev Local Installation for Claude Desktop/Code (without DXT)
@@ -227,7 +227,7 @@ For connecting to a remote MCP server:
 
 > **Note**: Update the host and port as needed for your deployment.
 
-Currently I'm using `render.com` to host the MCP server. The configuration for Claude is in the `config/claude.json` file. It uses `sse` but it is deprecated now. TODO: Make streamable-https the default for remote.
+Currently I'm using `render.com` to host the MCP server. The configuration for Claude uses `streamable-http` transport which is the recommended approach for remote deployments.
 
 Render requires `requirements.txt` to be present in the root directory. You can generate it using:
 
@@ -238,14 +238,14 @@ uv pip compile pyproject.toml > requirements.txt
 Also requires `runtime.txt` to be present in the root directory with the Python version specified:
 
 ```txt
-python-3.11.11
+python-3.13.0
 ```
 
 Remember also to set the environment variables in the render.com dashboard:
 
 ```bash
-TRANSPORT=sse
-PORT=1000
+TRANSPORT=streamable-http
+PORT=10000
 ```
 
 ## User Guide
@@ -258,29 +258,29 @@ PORT=1000
 
 3. get_jobs_raw_metadata: Extract detailed job information
 
-4. adapt_cv_to_latest_job: Adapt CV to job requirements
+4. tailor_cv: Adapt CV to job requirements
 
 After installing the MCP server, you can access its functionality in Claude Desktop/Code using the tools to get information about jobs in Linkedin. Combined with the functionality provided by the [MCP Server serving my CV](https://github.com/francisco-perez-sorrosal/cv/tree/mcp) 
 you can ask things like this:
 
 ```text
-Get a list of new jobs from linkedin (2 pages) for a research engineer position in ml/ai in San Francisco, take the last job id from that list, retrieve its metadata, show its content formatted properly, and finally adapt Francisco's CV to the job's description retrieved.
+Get a list of new jobs from linkedin (2 pages) for a research engineer position in ml/ai in San Francisco, take the last job id from that list, retrieve its metadata, show its content formatted properly, and finally use the tailor_cv_to_job prompt to adapt Francisco's CV to the job's description retrieved.
 ```
 
 or simply:
 
 ```text
-Adapt Francisco's CV to the latest job retrieved
+Use the tailor_cv_to_job prompt to adapt Francisco's CV to the latest job retrieved
 
 # or
 
-Adapt Francisco's CV to the first two retrieved job ids
+Use the tailor_cv tool and tailor_cv_to_job prompt to adapt Francisco's CV to specific job requirements
 ```
 
 or, as a recruiter, get your posted LinkedIn job id and write:
 
 ```text
-Adapt Francisco's CV to this job id 4122691570
+Use the tailor_cv_to_job prompt to adapt Francisco's CV to this job id 4122691570
 ```
 
 ## Cache
