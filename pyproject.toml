@@ -17,9 +17,15 @@ classifiers = [
     "Framework :: FastAPI",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-dependencies = [ 
-    "httpx>=0.28.1,<0.29", 
-    "mcp[cli]>=1.9.2,<2", "beautifulsoup4>=4.13.4,<5", "jsonlines>=4.0.0,<5", "loguru>=0.7.3,<0.8", "selenium>=4.33.0,<5", "requests>=2.32.4,<3",
+dependencies = [
+    "httpx>=0.28.1,<0.29",
+    "mcp[cli]>=1.9.2,<2", 
+    "beautifulsoup4>=4.13.4,<5", 
+    "jsonlines>=4.0.0,<5", 
+    "loguru>=0.7.3,<0.8", 
+    "selenium>=4.33.0,<5", 
+    "requests>=2.32.4,<3", 
+    "pyyaml>=6.0,<7",
 ]
 
 [project.urls]

@@ -13,6 +13,7 @@ from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp.prompts import base
 
 from linkedin_mcp_server.web_scrapper import JobPostingExtractor
+from linkedin_mcp_server.utils import load_prompt_from_yaml, PromptLoadError
 
 # Configure logger for DXT environment
 logger.remove()
@@ -191,150 +192,29 @@ def tailor_cv_to_job(
     pages: int = 1
 ) -> list[base.Message]:
     """Prompt for getting the latest job generating a tailored version of Francisco Perez-Sorrosal's CV based on the specified parameters.
-    
+
     Args:
         job_description: The job description to adapt the CV to (if not provided, use the job id to retrieve the job description)
         position: The position to search for jobs for
         location: The location to search for jobs for
         job_id: The job id to retrieve the metadata for
         pages: The number of pages to retrieve the job description from
-        
+
     Returns:
         list[base.Message]: The job details and the generated adapted CV tailored to the job description
+
+    Raises:
+        PromptLoadError: If the prompt file cannot be loaded
     """
-    return  [base.UserMessage(f"""
-You are a senior CV optimization specialist with 10+ years of experience in technical recruiting for computer science, machine learning, and artificial intelligence roles. Your expertise lies in strategic candidate positioning and maximizing job-candidate alignment through intelligent CV presentation.
-
-OBJECTIVE:
-Analyze a target job posting and strategically reposition Francisco's CV to showcase his most relevant qualifications while maintaining complete content integrity. Focus on strategic presentation rather than content modification.
-
-<PREREQUISITES>
-1. If the job description is not provided:
-    1.1. Get a list of new jobs from linkedin ({pages} pages) for a {position} in {location}.
-    1.2. Then, take the {job_id} job id from that list and retrieve its metadata context. 
-
-2. If the job description is provided:
-    2.1. Use this job description provided as metadata context: {job_description}
-
-3. Finally, retrieve Francisco's CV content using the tools from the cv MCP Server. 
-</PREREQUISITES>
-    
-With this context, follow the methodology below.
-
-METHODOLOGY:
-
-Follow the steps below and generate the deliverables specified taking into account the important notes.
-
-<STEPS>
-
-Phase 1: Strategic Analysis
-
-Job Deconstruction: Extract key requirements, responsibilities, technical stack, and company culture indicators
-Candidate Mapping: Identify Francisco's experiences that align with job priorities
-Initial Fit Assessment: Evaluate the overall compatibility between Francisco's CV and the job requirements using a 1-10 scale (1 = poor fit, 10 = perfect match) based on technical skills overlap, experience level alignment, and role compatibility
-Gap Assessment: Recognize any misalignments or areas requiring strategic positioning
-
-Phase 2: Strategic CV Repositioning
-Apply these proven techniques to optimize presentation:
-Content Organization
-
-- Reorder CV sections to lead with most relevant qualifications
-- Restructure bullet points to emphasize job-relevant achievements first
-- Position key technical skills prominently when they match requirements
-- Elevate distributed systems and software engineering experience when relevant to role requirements
-
-Strategic Emphasis
-
-- Highlight terminology and keywords that mirror job posting language
-- Emphasize quantifiable achievements that relate to role expectations
-- Spotlight technologies and methodologies mentioned in job requirements
-- Showcase Francisco's distributed systems expertise (scalability, performance, architecture) when applicable
-- Feature software engineering best practices and development experience for technical roles
-- Connect AI/ML work with underlying software engineering and systems foundations
-
-Professional Formatting
-
-- Use H2 headers for major sections (Summary, Experience, Skills, Education)
-- Apply H3 headers for job titles and educational institutions
-- Maintain consistent bullet point structure with action verbs
-- Ensure clean hierarchy and scannable layout
-- Create clear connections between Francisco's diverse technical backgrounds (AI/ML, distributed systems, software engineering)
-
-Phase 3: Alignment Evaluation
-Assess strategic positioning effectiveness across core competency areas.
-
-</STEPS>
-
-<DELIVERABLES>
-
-Generate the following four sections in markdown format:
-
-1. Job Intelligence Brief
-
-1.1 Header: Job ID with clickable URL link and complete job title
-
-1.2 Initial Fit Assessment: Provide an overall compatibility score (1-10 scale) with brief justification:
-
-1.2.1 Overall Fit Score: X/10 - One sentence explaining the primary reasons for this initial assessment
-
-1.3 Metadata Table: Include all available data points:
-
-- Company name and industry
-- Location and remote options
-- Employment type (full-time, contract, etc.)
-- Experience level required
-- Salary range (if disclosed)
-- Key technical requirements
-- Application deadline (if specified)
-- Direct application URL
-
-
-2. Strategically Repositioned CV
-
-Present Francisco's CV optimized for this specific role using professional markdown formatting. Prioritize sections and content based on job relevance while preserving all original information.
-
-Formatting Requirements:
-
-- Contact information prominently displayed
-- Professional summary tailored to role (if applicable)
-- Experience section ordered by relevance to target position
-- Skills section highlighting job-relevant technologies
-- Consistent formatting with clear visual hierarchy
-
-
-3. Strategic Alignment Assessment
-
-Evaluate positioning effectiveness using this scoring matrix (0-10 scale where 10 = perfect alignment):
-
-Create a table with columns: Competency Area, Score, Strategic Rationale
-Include these competency areas:
-
-- Core Technical Skills: Assessment of alignment between Francisco's technical expertise and job requirements
-- Experience Depth: Assessment of how Francisco's experience level matches role seniority
-- Domain Knowledge: Relevance of Francisco's industry background to target company/sector
-- Role-Specific Capabilities: Match between Francisco's demonstrated abilities and specific job responsibilities
-- Technology Stack Alignment: Overlap between Francisco's technical tools and job requirements
-- Growth Trajectory: Francisco's potential to advance within this role and company
-- Cultural Integration: Likelihood of Francisco fitting company culture based on available indicators
-
-
-4. Strategic Positioning Summary
-
-Provide a concise strategic analysis (400-600 words) structured as follows:
-
-- Competitive Advantages (150-200 words): Francisco's strongest qualifications that directly address this role's requirements
-- Strategic Challenges (100-150 words): Any gaps or areas requiring careful positioning, with recommended mitigation strategies
-- Value Proposition (150-250 words): The unique combination of skills and experience Francisco brings to this specific opportunity
-
-</DELIVERABLES>
-
-IMPORTANT NOTES:
-- Content Integrity: Never add, modify, or fabricate any information not present in Francisco's original CV. Only reorganize and strategically emphasize existing content.
-- Strategic Focus: Prioritize job description alignment above all other considerations. Every positioning decision should serve the goal of demonstrating Francisco's fit for this specific role.
-- Professional Excellence: Maintain industry-standard CV formatting, consistent styling, and error-free presentation throughout.
-- Honest Assessment: Provide realistic evaluation scores. Acknowledge limitations while highlighting genuine strengths.
-    """)]
-
+    prompt_template = load_prompt_from_yaml("tailor_cv")
+    formatted_prompt = prompt_template.format(
+        job_description=job_description,
+        position=position,
+        location=location,
+        job_id=job_id,
+        pages=pages
+    )
+    return [base.UserMessage(formatted_prompt)]
 
 if __name__ == "__main__":
     try:
