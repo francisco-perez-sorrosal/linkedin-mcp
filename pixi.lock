@@ -51,6 +51,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/8d/59/b4572118e098ac8e46e399a1dd0f2d85403ce8bbaad9ec79373ed6badaf9/PySocks-1.7.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/5f/ed/539768cf28c661b5b068d66d96a2f155c4971a5d55684a514c1a0e0dec2f/python_dotenv-1.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/45/58/38b5afbc1a800eeea951b9285d3912613f2603bdf897a4ab0f4bd7f405fc/python_multipart-0.0.20-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/b1/16/95309993f1d3748cd644e02e38b75d50cbc0d9561d21f390a76242ce073f/pyyaml-6.0.3-cp313-cp313-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/c1/b1/3baf80dc6d2b7bc27a95a67752d0208e410351e3feb4eb78de5f77454d8d/referencing-0.36.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/db/4254e3eabe8020b458f1a747140d32277ec7a271daf1d235b70dc0b4e6e3/requests-2.32.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl
@@ -356,7 +357,7 @@ packages:
 - pypi: .
   name: linkedin-mcp-server
   version: 0.1.0
-  sha256: 5e9b6ddd5ce036a4d50bd1ee84ece3a649db0e83ed5f5b689d3264e8fa3dfb8e
+  sha256: 6706360708d82f0bacb2fe04261ab9da7aeca6219cd0ad8e5e2960aaa27a8689
   requires_dist:
   - httpx>=0.28.1,<0.29
   - mcp[cli]>=1.9.2,<2
@@ -365,6 +366,7 @@ packages:
   - loguru>=0.7.3,<0.8
   - selenium>=4.33.0,<5
   - requests>=2.32.4,<3
+  - pyyaml>=6.0,<7
   requires_python: '>=3.13'
   editable: true
 - pypi: https://files.pythonhosted.org/packages/0c/29/0348de65b8cc732daa3e33e67806420b2ae89bdce2b04af740289c5c6c8c/loguru-0.7.3-py3-none-any.whl
@@ -591,6 +593,11 @@ packages:
   purls: []
   size: 7002
   timestamp: 1752805902938
+- pypi: https://files.pythonhosted.org/packages/b1/16/95309993f1d3748cd644e02e38b75d50cbc0d9561d21f390a76242ce073f/pyyaml-6.0.3-cp313-cp313-macosx_11_0_arm64.whl
+  name: pyyaml
+  version: 6.0.3
+  sha256: 2283a07e2c21a2aa78d9c4442724ec1eb15f5e42a723b99cb3d822d48f5f7ad1
+  requires_python: '>=3.8'
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/readline-8.2-h1d1bf99_2.conda
   sha256: 7db04684d3904f6151eff8673270922d31da1eea7fa73254d01c437f49702e34
   md5: 63ef3f6e6d6d5c589e64f11263dc5676
