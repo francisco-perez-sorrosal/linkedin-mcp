@@ -6,7 +6,6 @@ license = {text = "MIT"}
 authors = [
     {name = "Francisco Perez Sorrosal", email = "fperezsorrosal@gmail.com"}
 ]
-readme = "README.md"
 requires-python = ">=3.13"
 classifiers = [
     "Development Status :: 3 - Alpha",
