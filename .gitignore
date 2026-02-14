@@ -297,3 +297,6 @@ linkedin_test_*.json
 # lib
 lib/
 mcpb-package/
+
+# AI assistants
+.ai-work/

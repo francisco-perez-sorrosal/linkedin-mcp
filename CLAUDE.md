@@ -98,8 +98,10 @@ Remote configuration:
 ```json
 {
   "linkedin_mcp_fps": {
-    "command": "npx", 
+    "command": "npx",
     "args": ["mcp-remote", "http://localhost:10000/mcp"]
   }
 }
 ```
+
+Prefer delegating to specialized agents (researcher, context-engineer, implementer, etc.) over doing multi-step work directly.
