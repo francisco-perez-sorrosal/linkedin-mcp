@@ -1,200 +1,143 @@
-# LinkedIn MCP Server with Anthropic's Claude Integration
+# LinkedIn Job Search for Claude
 
-A Python-based MCP (Model Context Protocol) server that gets stuff from your LinkedIn profile and integrates with the Anthropic API for potential analysis tasks.
-
-# TL;DR Install for Claude Desktop/Code Access to the LinkedIn profile
-
-```bash
-# 1.a) Install the mcp server access in Claude Desktop
-./install_claude_desktop_mcp.sh
-
-# 1.b) or manually integrate this JSON snippet to the `mcpServers` section of your `claude_desktop_config.json` (e.g. `~/Library/Application\ Support/Claude/claude_desktop_config.json`)
-
-{
-  "linkedin_francisco_perez_sorrosal": {
-    "command": "npx",
-    "args": ["mcp-remote", "http://localhost:10000/mcp"]
-  }
-}
-
-# 2) Restart Claude and check that the 'Add from linkedin_francisco_perez_sorrosal` option is available in the mcp servers list
-
-# 3) Query the LinkedIn profile served from the mcp server in Claude Desktop!
-
-e.g. TODO
-```
+A combined MCP server and skills system for searching LinkedIn jobs, retrieving detailed job metadata, and tailoring CVs. Integrates with Claude Desktop and Claude Code through both server-side tools and client-side workflow orchestration.
 
 ## Features
 
-- **Job Search URL Generation**: Create properly formatted LinkedIn job search URLs with location, distance, and query parameters
-- **Job ID Retrieval**: Extract job IDs from LinkedIn search pages with pagination support
-- **Job Metadata Extraction**: Get detailed job information including title, company, description, and requirements
-- **CV Adaptation**: Combined with the cv MCP Server, adapt Francisco's CV to match specific job requirements
-- Built with FastMCP for high performance and with Pixi for dependency management and task running
-- Source code organized in the `src/` directory
-- Includes configurations for:
-  - Docker (optional, for containerization)
-  - Linting (Ruff, Black, iSort)
-  - Formatting
-  - Type checking (MyPy)
+### MCP Server (Backend)
+- **Async HTTP scraping** with httpx (no browser required)
+- **Two-tier tool surface**: `search_jobs` + `get_job_details` for efficient data retrieval
+- **JSONL-based caching** to avoid re-scraping jobs
+- **LinkedIn guest API** integration for unauthenticated access
+- **Semaphore-based concurrency control** with rate limiting and backoff
+
+### Claude Code Skills (Frontend)
+- **`linkedin-job-search`** — 5-step interactive workflow for searching and selecting jobs
+- **`cv-tailoring`** — 3-phase methodology for adapting CVs to job descriptions
+- **Default parameters** — San Francisco, "AI Engineer or ML Engineer" for quick searches
 
 ## Prerequisites
 
 - Python 3.13+
-- [Pixi](https://pixi.sh/) (for dependency management and task execution)
-- uv (for building the MCP bundle)
-- Docker (optional, for containerization)
+- [Pixi](https://pixi.sh/) for dependency management
+- [uv](https://github.com/astral-sh/uv) for building MCP bundles (optional)
+
+## Installation
+
+Clone the repository and install dependencies with Pixi:
+
+```bash
+git clone https://github.com/francisco-perez-sorrosal/linkedin-mcp.git
+cd linkedin-mcp
+pixi install
+```
 
 ## Project Structure
 
-This project follows the `src` layout for Python packaging.
-
-```bash
-.
-├── .dockerignore
-├── .gitignore
-├── Dockerfile
-├── pyproject.toml    # Python project metadata and dependencies (PEP 621)
-├── README.md
-├── src/
-│   └── linkedin_mcp_server/
-│       ├── __init__.py
-│       └── main.py     # FastAPI application logic
-├── tests/             # Test files (e.g., tests_main.py)
 ```
-
-## Setup and Installation
-
-1. **Clone the repository** (if applicable) or ensure you are in the project root directory.
-
-2. **Install dependencies using Pixi**:
-
-This command will create a virtual environment and install all necessary dependencies:
-
-```bash
-pixi install
+linkedin-mcp/
+├── src/linkedin_mcp_server/
+│   ├── main.py          # FastMCP server with async tools
+│   ├── scraper.py       # Async HTTP scraper (httpx + BeautifulSoup)
+│   ├── cache.py         # JSONL persistent cache
+│   ├── utils.py         # YAML prompt loader
+│   └── prompts/
+│       └── tailor_cv.yaml
+├── skills/
+│   ├── linkedin-job-search/  # Job search orchestration skill
+│   └── cv-tailoring/         # CV tailoring skill
+├── tests/
+│   ├── test_cache.py
+│   ├── test_scraper.py
+│   └── fixtures/
+└── pyproject.toml
 ```
 
 ## Running the Server
 
-Pixi tasks are defined in `pyproject.toml`:
-
-### mcps (MCP Server)
+### Local Development
 
 ```bash
+# stdio transport (for local Claude Desktop integration)
 pixi run mcps --transport stdio
-```
 
-### Development Mode (with auto-reload)
+# streamable-http transport (for remote access)
+pixi run mcps --transport streamable-http
 
-```bash
-# Using pixi directly
-pixi run mcps --transport stdio  # or sse, streamable-http
-
-# Alternatively, using uv directly
+# Direct execution with uv
 uv run --with "mcp[cli]" mcp run src/linkedin_mcp_server/main.py --transport streamable-http
-
-# Go to http://127.0.0.1:10000/mcp
 ```
 
-The server will start at `http://localhost:10000`. It will automatically reload if you make changes to files in the `src/` directory.
+The HTTP server runs at `http://localhost:10000/mcp` by default.
 
 ### MCP Inspection Mode
 
 ```bash
-# Using pixi
-DANGEROUSLY_OMIT_AUTH=true  npx @modelcontextprotocol/inspector pixi run mcps --transport stdio
-
-# Direct execution
-DANGEROUSLY_OMIT_AUTH=true npx @modelcontextprotocol/inspector pixi run python src/linkedin_mcp_server/main.py --transport streamable-http
+DANGEROUSLY_OMIT_AUTH=true npx @modelcontextprotocol/inspector pixi run mcps --transport stdio
 ```
-
-This starts the inspector for the MCP Server.
-
-### Web scrapper
-
-```sh
-pixi run python src/linkedin_mcp_server/web_scrapper.py   
-```
-
 
 ## Development Tasks
 
-### Run Tests
-
 ```bash
-pixi run test
+pixi run test      # Run tests
+pixi run lint      # Check linting
+pixi run format    # Apply formatting and fix lint issues
+pixi run build     # Build package (creates sdist/wheel in dist/)
 ```
 
-### Lint and Check Formatting
+## MCP Tools
 
-```bash
-pixi run lint
+The server exposes three tools:
+
+### 1. search_jobs
+
+Search LinkedIn jobs and return summary data from search result cards.
+
+```python
+search_jobs(
+    query="AI Engineer or ML Engineer",
+    location="San Francisco",
+    distance=25,
+    num_pages=1,
+    experience_level=None,  # 1-6: Intern to Executive
+    job_type=None,          # F/P/C/T/V/I/O: Full-time, Part-time, Contract, etc.
+    work_arrangement=None,  # 1/2/3: On-site, Remote, Hybrid
+    time_posted=None        # r86400/r604800/r2592000: 24h, 1week, 1month
+)
 ```
 
-### Apply Formatting and Fix Lint Issues
+**Returns:** List of job summaries with title, company, location, date, URL, job_id.
 
-```bash
-pixi run format
+### 2. get_job_details
+
+Fetch full metadata for specific job IDs. Uses cache when available.
+
+```python
+get_job_details(job_ids=["123456789", "987654321"])
 ```
 
-### Build the Python Package
+**Returns:** Dict mapping job_id to full metadata (description, seniority, employment type, applicants, salary, etc.).
 
-Creates sdist and wheel in `dist/`:
+### 3. tailor_cv
 
-```bash
-pixi run build
+CV tailoring prompt orchestration (requires CV MCP server).
+
+```python
+tailor_cv(
+    job_description="",
+    position="Research Engineer or ML Engineer or AI Engineer",
+    location="San Francisco",
+    job_id="first"
+)
 ```
 
-### Docker Support (Optional)
+**Returns:** Instructions for the CV tailoring workflow.
 
-#### Build the Docker Image
+## Claude Desktop Integration
 
-```bash
-docker build -t linkedin-mcp-server .
-```
+### Local Configuration (stdio)
 
-#### Run the Docker Container
-
-TODO: Rewrite this if necessary. Docker support not yet done.
-
-## MCP Server Installation
-
-### Local Installation with MCP
-
-#### Init the mcpb
-
-Init mcpb project with a manifest
-
-```sh
-npx @anthropic-ai/mcpb init --yes
-```
-
-**Note** When creating the manifest, in the `mcp_config` section, put the full path to the python interpreter ->  `"command": "/Users/fperez/.pyenv/shims/python"`
-
-#### Bundle Python libs and Package Project as mcpb
-
-```sh
-pixi install
-pixi run mcp-bundle
-pixi run pack
-```
-
-The output file `linkedin-mcp-fps.mcpb` is created on the `mcpb-package` directory. Alternatively, download the `linkedin-mcp-fps.dxt` file from releases (TODO).
-
-With the packaged extension:
-
-1. Double-click the `.mcpb` file to install it in Claude Desktop
-2. Alternatively, drag and drop it to Claude Desktop Settings/Extensions section
-3. Restart Claude Desktop (In new Claude versions it's not necessary)
-4. The extension should appear in your MCP servers list
-
-### Extension Requirements
-
-This extension requires Python 3.13+ and includes all necessary dependencies bundled.
-
-
-### Dev Local Installation for Claude Desktop/Code (without DXT)
+Add to `claude_desktop_config.json`:
 
 ```json
 {
@@ -212,7 +155,7 @@ This extension requires Python 3.13+ and includes all necessary dependencies bun
 }
 ```
 
-### Remote Configuration for Claude Desktop/Code
+### Remote Configuration (HTTP)
 
 For connecting to a remote MCP server:
 
@@ -225,89 +168,158 @@ For connecting to a remote MCP server:
 }
 ```
 
-> **Note**: Update the host and port as needed for your deployment.
+Replace the host and port as needed for your deployment.
 
-Currently I'm using `render.com` to host the MCP server. The configuration for Claude uses `streamable-http` transport which is the recommended approach for remote deployments.
+### MCP Bundle (mcpb)
 
-Render requires `requirements.txt` to be present in the root directory. You can generate it using:
+Build and install as an extension:
 
 ```bash
-uv pip compile pyproject.toml > requirements.txt
+pixi run mcp-bundle
+pixi run pack
 ```
 
-Also requires `runtime.txt` to be present in the root directory with the Python version specified:
+The output file `linkedin-mcp-fps.mcpb` is created in `mcpb-package/`. Double-click to install in Claude Desktop.
 
-```txt
-python-3.13.0
-```
+## Claude Code Skills
 
-Remember also to set the environment variables in the render.com dashboard:
+Two client-side skills for workflow orchestration (located in `skills/`):
+
+### linkedin-job-search
+
+5-step interactive workflow: gather params → search → present table → fetch details → offer next actions. Activate with: "find jobs", "search positions", "job hunt".
+
+### cv-tailoring
+
+3-phase methodology for adapting Francisco's CV to job descriptions. Orchestrates LinkedIn MCP and CV MCP tools. Activate with: "tailor CV", "adapt resume", "CV for job".
+
+See each skill's `SKILL.md` for detailed documentation.
+
+## Architecture
+
+### 1. MCP Server (`main.py`)
+
+- Built with FastMCP framework
+- Configurable transport modes: stdio, streamable-http
+- Async/await with httpx for non-blocking HTTP operations
+- Auto-detects transport mode from environment variables (TRANSPORT, HOST, PORT)
+
+### 2. Async Scraper (`scraper.py`)
+
+- Uses httpx AsyncClient for lightweight HTTP scraping
+- LinkedIn guest API returns server-rendered HTML (no browser required)
+- Semaphore-based concurrency control (default: 5 concurrent requests)
+- Rate limiting with random delays (1-3s) and exponential backoff on 429/503
+- Frozen dataclasses for type safety: `JobSummary`, `JobDetail`
+
+### 3. Caching System (`cache.py`)
+
+- JSONL-based persistent cache to avoid re-scraping jobs
+- In-memory cache for fast lookups
+- Batch insertion with `put_batch()` for efficient bulk updates
+- Atomic flush with temp-file-then-rename for data integrity
+- Default cache location: `~/.linkedin-mcp/raw_job_description_cache/`
+
+## LinkedIn API Endpoints
+
+The system uses LinkedIn's guest API:
+
+- Job search: `https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search-results/`
+- Job details: `https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{job_id}`
+
+**Parameters:**
+- `location`: Search location (URL encoded)
+- `distance`: Radius in miles (10, 25, 35, 50, 75, 100)
+- `keywords`: Job search query (URL encoded)
+- `start`: Pagination offset
+- Optional filters: `f_E` (experience), `f_JT` (job type), `f_WT` (work arrangement), `f_TPR` (time posted)
+
+## Dependencies
+
+| Package | Version | Role |
+|---------|---------|------|
+| `httpx` | >=0.28.1,<0.29 | Async HTTP client |
+| `mcp[cli]` | >=1.9.2,<2 | FastMCP framework |
+| `beautifulsoup4` | >=4.13.4,<5 | HTML parsing |
+| `jsonlines` | >=4.0.0,<5 | JSONL cache persistence |
+| `loguru` | >=0.7.3,<0.8 | Structured logging |
+| `pyyaml` | >=6.0,<7 | YAML prompt loading |
+
+All dependencies are managed via Pixi (see `pyproject.toml`).
+
+## Cache Management
+
+The system uses a local cache to avoid re-scraping jobs:
+
+- **Location:** `~/.linkedin-mcp/raw_job_description_cache/`
+- **Format:** JSONL (one job per line)
+- **Automatic:** Cached jobs are returned immediately; uncached jobs trigger scraping and cache insertion
+- **Persistence:** In-memory cache + on-disk JSONL file
+
+To clear the cache, delete the directory manually.
+
+## Deployment
+
+### Remote Deployment (render.com)
+
+Set environment variables in the deployment dashboard:
 
 ```bash
 TRANSPORT=streamable-http
 PORT=10000
 ```
 
-## User Guide
+Generate `requirements.txt` for render.com:
 
-### Available Tools
-
-1. get_url_for_jobs_search: Generate LinkedIn job search URLs
-
-2. get_new_job_ids: Get new job IDs from LinkedIn
-
-3. get_jobs_raw_metadata: Extract detailed job information
-
-4. tailor_cv: Adapt CV to job requirements
-
-After installing the MCP server, you can access its functionality in Claude Desktop/Code using the tools to get information about jobs in Linkedin. Combined with the functionality provided by the [MCP Server serving my CV](https://github.com/francisco-perez-sorrosal/cv/tree/mcp) 
-you can ask things like this:
-
-```text
-Get a list of new jobs from linkedin (2 pages) for a research engineer position in ml/ai in San Francisco, take the last job id from that list, retrieve its metadata, show its content formatted properly, and finally use the tailor_cv_to_job prompt to adapt Francisco's CV to the job's description retrieved.
+```bash
+uv pip compile pyproject.toml > requirements.txt
 ```
 
-or simply:
+Add `runtime.txt` with:
 
-```text
-Use the tailor_cv_to_job prompt to adapt Francisco's CV to the latest job retrieved
-
-# or
-
-Use the tailor_cv tool and tailor_cv_to_job prompt to adapt Francisco's CV to specific job requirements
+```txt
+python-3.13.0
 ```
 
-or, as a recruiter, get your posted LinkedIn job id and write:
+## Usage Examples
+
+### Basic Job Search
 
 ```text
-Use the tailor_cv_to_job prompt to adapt Francisco's CV to this job id 4122691570
+Search for ML Engineer jobs in San Francisco (2 pages)
 ```
 
-## Cache
+### Retrieve Job Details
 
-The system uses a local cache to avoid re-scraping jobs:
-- Cache location: `~/.linkedin-mcp/raw_job_description_cache/`
-- Format: JSONL (JSON Lines)
-- Automatically managed
-- In-memory cache for fast lookups
-- Configurable cache keys and storage locations
+```text
+Get full details for job IDs 1234567890 and 0987654321
+```
+
+### Combined Workflow with CV Tailoring
+
+```text
+Search for research engineer positions in New York,
+show me the top results, then tailor Francisco's CV
+to the most relevant job
+```
+
+### Using Skills
+
+```text
+@linkedin-job-search Find AI Engineer jobs in Seattle
+
+@cv-tailoring Adapt Francisco's CV to job ID 4122691570
+```
 
 ## Troubleshooting
 
-If you encounter issues:
-
-1. **Import errors**: Ensure all required Python packages are installed
-2. **WebDriver issues**: Make sure Chrome is installed for Selenium
-3. **Connection errors**: Check your internet connection for LinkedIn access
-4. **Permission errors**: Ensure the cache directory is writable
-5. **Python path issues**: Verify the manifest.json uses the correct Python executable path
-
-## Dev
-
-### Requirements
-
-- `pixi`
-- `uv`
+| Issue | Solution |
+|-------|----------|
+| Import errors | Run `pixi install` to install dependencies |
+| Connection errors | Check internet connection; LinkedIn may be blocking requests |
+| Rate limiting (429/503) | Reduce concurrency or wait before retrying (backoff is automatic) |
+| Permission errors | Ensure the cache directory `~/.linkedin-mcp/` is writable |
+| Empty results | Verify search parameters; some location/query combinations return no results |
 
 ## Support
 
@@ -315,4 +327,4 @@ For issues and feature requests, visit: https://github.com/francisco-perez-sorro
 
 ## License
 
-This project is licensed under the MIT License. See `pyproject.toml` (See `LICENSE` file) for details.
+MIT License. See `pyproject.toml` for details.
