@@ -146,7 +146,7 @@ class JobDatabase:
                 location TEXT NOT NULL,
                 keywords TEXT NOT NULL,
                 distance INTEGER DEFAULT 25,
-                time_filter TEXT DEFAULT 'r7200',
+                time_filter TEXT DEFAULT 'r86400',
                 refresh_interval INTEGER DEFAULT 3600,
                 enabled INTEGER DEFAULT 1,
                 last_scraped_at TEXT,
@@ -320,10 +320,15 @@ class JobDatabase:
         placeholders = ", ".join(["?" for _ in columns])
         sql = f"INSERT OR REPLACE INTO jobs ({', '.join(columns)}) VALUES ({placeholders})"
 
-        # Extract values for each job
+        # Extract values for each job, serializing lists to JSON
         rows = []
         for job in jobs:
-            row = [job.get(col) for col in columns]
+            row = []
+            for col in columns:
+                val = job.get(col)
+                if isinstance(val, (list, dict)):
+                    val = json.dumps(val)
+                row.append(val)
             rows.append(row)
 
         cursor.executemany(sql, rows)
@@ -585,7 +590,7 @@ class JobDatabase:
                     profile["location"],
                     profile["keywords"],
                     profile.get("distance", 25),
-                    profile.get("time_filter", "r7200"),
+                    profile.get("time_filter", "r86400"),
                     profile.get("refresh_interval", 3600),
                     profile.get("enabled", 1),
                     now,
@@ -608,7 +613,7 @@ class JobDatabase:
                     profile["location"],
                     profile["keywords"],
                     profile.get("distance", 25),
-                    profile.get("time_filter", "r7200"),
+                    profile.get("time_filter", "r86400"),
                     profile.get("refresh_interval", 3600),
                     profile.get("enabled", 1),
                     now,
@@ -706,7 +711,7 @@ class JobDatabase:
         - location: "San Francisco, CA"
         - keywords: "AI Engineer OR ML Engineer OR Research Engineer"
         - distance: 25
-        - time_filter: "r7200" (2 hours)
+        - time_filter: "r86400" (24 hours)
         - refresh_interval: 7200 (2 hours)
 
         Returns:
@@ -726,7 +731,7 @@ class JobDatabase:
             "location": "San Francisco, CA",
             "keywords": "AI Engineer OR ML Engineer OR Research Engineer",
             "distance": 25,
-            "time_filter": "r7200",
+            "time_filter": "r86400",
             "refresh_interval": 7200,
             "enabled": 1,
         }

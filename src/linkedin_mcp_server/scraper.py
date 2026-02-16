@@ -32,7 +32,7 @@ USER_AGENTS = [
 # CSS selectors
 SELECTORS = {
     # Search card selectors
-    "search_card": "li.base-card",
+    "search_card": "div.job-search-card",
     "card_title": "h3.base-search-card__title",
     "card_company": "h4.base-search-card__subtitle a",
     "card_company_url": "h4.base-search-card__subtitle a[href]",

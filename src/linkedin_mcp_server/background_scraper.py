@@ -38,7 +38,7 @@ class BackgroundScraperService:
         self.db = db
         self.worker_tasks: dict[int, asyncio.Task] = {}  # profile_id → task
         self.shutdown_event = asyncio.Event()
-        self.job_semaphore = asyncio.Semaphore(10)  # Concurrency for job fetching
+        self.job_semaphore = asyncio.Semaphore(3)  # Conservative to avoid 429s
         self.company_semaphore = asyncio.Semaphore(
             2
         )  # Conservative for company enrichment

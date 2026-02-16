@@ -501,7 +501,7 @@ async def add_scraping_profile(
     keywords: str,
     distance: int = 25,
     refresh_interval: int = 7200,
-    time_filter: str = "r7200"
+    time_filter: str = "r86400"
 ) -> dict:
     """
     Add a new scraping profile. Background scraper picks it up within 30s.
