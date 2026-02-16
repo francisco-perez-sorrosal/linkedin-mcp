@@ -62,7 +62,7 @@ async def test_service_initialization(mock_db):
     assert service.db == mock_db
     assert service.worker_tasks == {}
     assert not service.shutdown_event.is_set()
-    assert service.job_semaphore._value == 10
+    assert service.job_semaphore._value == 3
     assert service.company_semaphore._value == 2
 
 

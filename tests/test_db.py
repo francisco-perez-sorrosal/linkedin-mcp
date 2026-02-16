@@ -473,6 +473,107 @@ def test_query_jobs_fts_search():
         db.close()
 
 
+def test_fts_survives_upsert():
+    """Test FTS5 index stays consistent after INSERT OR REPLACE (upsert).
+
+    This was the root cause of the FTS corruption: external content FTS5
+    requires the special 'delete' command in triggers, not regular DELETE.
+    """
+    from datetime import datetime, timezone
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = Path(tmpdir) / "test.db"
+        db = JobDatabase(db_path)
+        db.initialize_schema()
+
+        now = datetime.now(timezone.utc).isoformat()
+
+        # Insert job with description about Python
+        job = {
+            "job_id": "42",
+            "title": "ML Engineer",
+            "company": "Acme Corp",
+            "location": "SF",
+            "posted_date": "2026-02-15",
+            "posted_date_iso": "2026-02-15T10:00:00Z",
+            "scraped_at": now,
+            "raw_description": "Expert in Python and TensorFlow required",
+        }
+        db.upsert_jobs([job])
+
+        # FTS search should find by old description
+        results = db.query_jobs(keywords="Python")
+        assert len(results) == 1
+        assert results[0]["job_id"] == "42"
+
+        # Upsert same job with different description (triggers INSERT OR REPLACE)
+        job["raw_description"] = "Expert in Rust and CUDA required"
+        db.upsert_jobs([job])
+
+        # FTS should find by new description
+        results = db.query_jobs(keywords="Rust")
+        assert len(results) == 1
+        assert results[0]["job_id"] == "42"
+
+        # FTS should NOT find by old description
+        results = db.query_jobs(keywords="Python")
+        assert len(results) == 0
+
+        # Still only one job in the table
+        assert db.count_jobs() == 1
+
+        db.close()
+
+
+def test_rebuild_fts():
+    """Test manual FTS5 index rebuild."""
+    from datetime import datetime, timezone
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = Path(tmpdir) / "test.db"
+        db = JobDatabase(db_path)
+        db.initialize_schema()
+
+        now = datetime.now(timezone.utc).isoformat()
+
+        jobs = [
+            {
+                "job_id": "1",
+                "title": "ML Engineer",
+                "company": "Test Co",
+                "location": "SF",
+                "posted_date": "2026-02-15",
+                "posted_date_iso": "2026-02-15T10:00:00Z",
+                "scraped_at": now,
+                "raw_description": "Machine learning and deep learning",
+            },
+            {
+                "job_id": "2",
+                "title": "Frontend Dev",
+                "company": "Test Co",
+                "location": "SF",
+                "posted_date": "2026-02-15",
+                "posted_date_iso": "2026-02-15T11:00:00Z",
+                "scraped_at": now,
+                "raw_description": "React and TypeScript expert",
+            },
+        ]
+        db.upsert_jobs(jobs)
+
+        # Rebuild should not raise and index should still work
+        db.rebuild_fts()
+
+        results = db.query_jobs(keywords="machine learning")
+        assert len(results) == 1
+        assert results[0]["job_id"] == "1"
+
+        results = db.query_jobs(keywords="React")
+        assert len(results) == 1
+        assert results[0]["job_id"] == "2"
+
+        db.close()
+
+
 def test_query_jobs_sort_by():
     """Test sorting results."""
     from datetime import datetime, timezone, timedelta

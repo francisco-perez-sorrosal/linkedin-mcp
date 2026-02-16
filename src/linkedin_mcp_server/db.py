@@ -78,6 +78,7 @@ class JobDatabase:
         self.conn.execute("PRAGMA journal_mode=WAL")
         self.conn.execute("PRAGMA synchronous=NORMAL")  # Faster writes, still safe in WAL
         self.conn.execute("PRAGMA foreign_keys=ON")  # Enforce FK constraints
+        self.conn.execute("PRAGMA recursive_triggers=ON")  # Required for FTS5 sync on INSERT OR REPLACE
 
         logger.info(f"Database initialized at {self.db_path}")
 
@@ -219,25 +220,34 @@ class JobDatabase:
             )
         """)
 
-        # 7. FTS5 triggers to keep in sync with jobs table
+        # 7. FTS5 triggers to keep in sync with jobs table.
+        # External content FTS5 requires the special 'delete' command —
+        # regular DELETE FROM fts WHERE ... corrupts the index.
+        # Drop and recreate to ensure correct trigger definitions.
+        cursor.execute("DROP TRIGGER IF EXISTS jobs_fts_insert")
+        cursor.execute("DROP TRIGGER IF EXISTS jobs_fts_update")
+        cursor.execute("DROP TRIGGER IF EXISTS jobs_fts_delete")
+
         cursor.execute("""
-            CREATE TRIGGER IF NOT EXISTS jobs_fts_insert AFTER INSERT ON jobs BEGIN
-                INSERT INTO jobs_fts(job_id, title, company, raw_description, skills)
-                VALUES (new.job_id, new.title, new.company, new.raw_description, new.skills);
+            CREATE TRIGGER jobs_fts_insert AFTER INSERT ON jobs BEGIN
+                INSERT INTO jobs_fts(rowid, job_id, title, company, raw_description, skills)
+                VALUES (new.rowid, new.job_id, new.title, new.company, new.raw_description, new.skills);
             END
         """)
 
         cursor.execute("""
-            CREATE TRIGGER IF NOT EXISTS jobs_fts_update AFTER UPDATE ON jobs BEGIN
-                DELETE FROM jobs_fts WHERE job_id = old.job_id;
-                INSERT INTO jobs_fts(job_id, title, company, raw_description, skills)
-                VALUES (new.job_id, new.title, new.company, new.raw_description, new.skills);
+            CREATE TRIGGER jobs_fts_update AFTER UPDATE ON jobs BEGIN
+                INSERT INTO jobs_fts(jobs_fts, rowid, job_id, title, company, raw_description, skills)
+                VALUES('delete', old.rowid, old.job_id, old.title, old.company, old.raw_description, old.skills);
+                INSERT INTO jobs_fts(rowid, job_id, title, company, raw_description, skills)
+                VALUES (new.rowid, new.job_id, new.title, new.company, new.raw_description, new.skills);
             END
         """)
 
         cursor.execute("""
-            CREATE TRIGGER IF NOT EXISTS jobs_fts_delete AFTER DELETE ON jobs BEGIN
-                DELETE FROM jobs_fts WHERE job_id = old.job_id;
+            CREATE TRIGGER jobs_fts_delete BEFORE DELETE ON jobs BEGIN
+                INSERT INTO jobs_fts(jobs_fts, rowid, job_id, title, company, raw_description, skills)
+                VALUES('delete', old.rowid, old.job_id, old.title, old.company, old.raw_description, old.skills);
             END
         """)
 
@@ -260,6 +270,10 @@ class JobDatabase:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_company_refresh ON company_enrichment(next_refresh_at)")
 
         self.conn.commit()
+
+        # Rebuild FTS index to ensure consistency after trigger changes
+        self.rebuild_fts()
+
         logger.info("Database schema initialized successfully")
 
     def close(self) -> None:
@@ -275,6 +289,16 @@ class JobDatabase:
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Context manager exit."""
         self.close()
+
+    def rebuild_fts(self) -> None:
+        """Rebuild the FTS5 index from the jobs table.
+
+        Repairs any index corruption caused by direct modifications
+        or incorrect trigger behavior.
+        """
+        self.conn.execute("INSERT INTO jobs_fts(jobs_fts) VALUES('rebuild')")
+        self.conn.commit()
+        logger.info("FTS5 index rebuilt successfully")
 
     # ========== Job CRUD Operations ==========
 
