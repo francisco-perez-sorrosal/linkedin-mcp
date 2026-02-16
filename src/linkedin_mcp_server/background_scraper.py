@@ -191,9 +191,15 @@ class BackgroundScraperService:
             async with create_client() as client:
                 details = await fetch_job_details(client, job_ids, self.job_semaphore)
 
-            # Convert JobDetail to dict and add profile_id
+            # Convert JobDetail to dict, skip failed scrapes to avoid overwriting good data
             jobs_to_upsert = []
+            skipped = 0
             for detail in details:
+                if detail.title == "N/A" or detail.company == "N/A":
+                    skipped += 1
+                    logger.warning(f"Skipping job {detail.job_id}: detail fetch returned N/A fields")
+                    continue
+
                 job_dict = asdict(detail)
                 job_dict["profile_id"] = profile.id
 
@@ -203,6 +209,9 @@ class BackgroundScraperService:
                     await self._detect_job_changes(existing, job_dict)
 
                 jobs_to_upsert.append(job_dict)
+
+            if skipped:
+                logger.warning(f"Profile {profile.id}: skipped {skipped}/{len(details)} jobs with N/A fields")
 
             # Batch upsert to DB
             count = self.db.upsert_jobs(jobs_to_upsert)
