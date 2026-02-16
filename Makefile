@@ -1,15 +1,87 @@
-# Makefile for building the .dxt package for Claude Extensions
+# Makefile for building and installing distributable packages
 
-.PHONY: all build clean
+DIST_DIR   ?= dist
+DIST_MCPB   = $(DIST_DIR)/mcpb
+DIST_SKILL  = $(DIST_DIR)/skill
 
-all: build
+SKILL_NAME  = linkedin-job-search
 
-build:
+CLAUDE_DESKTOP_CONFIG = $(HOME)/Library/Application Support/Claude/claude_desktop_config.json
+MCP_SERVER_KEY        = linkedin_mcp_fps
+REMOTE_MCP_CONFIG     = config/claude.json
+
+.PHONY: all build-mcpb build-skill \
+        install-claude-desktop install-claude-code \
+        clean
+
+all: build-mcpb
+
+# --- Build targets ---
+
+build-mcpb:
 	pixi install
 	pixi run update-mcpb-deps
 	pixi run mcp-bundle
-	pixi run pack
+	DIST_MCPB=$(DIST_MCPB) pixi run pack
+
+build-skill:
+	mkdir -p $(DIST_SKILL)
+	cd skills/$(SKILL_NAME) && zip -r ../../$(DIST_SKILL)/$(SKILL_NAME).zip SKILL.md references/
+
+# --- Install targets ---
+
+# Install for Claude Desktop
+# Usage: make install-claude-desktop                    # local (default): build MCPB + skill
+#        make install-claude-desktop MCP_TARGET=remote   # remote: build skill + inject MCP config
+MCP_TARGET ?= local
+install-claude-desktop:
+ifeq ($(MCP_TARGET),local)
+	$(MAKE) build-mcpb build-skill
+	@echo ""
+	@echo "Packages built. Install manually in Claude Desktop:"
+	@echo ""
+	@echo "  MCP Server:  Open Settings > Extensions > Add, install $(DIST_MCPB)/*.mcpb"
+	@echo "  Skill:       Open Settings > Features > Add Skill, upload $(DIST_SKILL)/$(SKILL_NAME).zip"
+	@echo ""
+else ifeq ($(MCP_TARGET),remote)
+	$(MAKE) build-skill
+	@if [ ! -f "$(CLAUDE_DESKTOP_CONFIG)" ]; then \
+		echo "Error: Claude Desktop config not found at $(CLAUDE_DESKTOP_CONFIG)"; \
+		exit 1; \
+	fi
+	@if jq -e '.mcpServers.$(MCP_SERVER_KEY)' "$(CLAUDE_DESKTOP_CONFIG)" > /dev/null 2>&1; then \
+		echo "MCP server: $(MCP_SERVER_KEY) already present in Claude Desktop config — skipping"; \
+	else \
+		jq --argjson cfg "$$(cat $(REMOTE_MCP_CONFIG))" \
+			'.mcpServers.$(MCP_SERVER_KEY) = $$cfg' "$(CLAUDE_DESKTOP_CONFIG)" > "$(CLAUDE_DESKTOP_CONFIG).tmp" \
+			&& mv "$(CLAUDE_DESKTOP_CONFIG).tmp" "$(CLAUDE_DESKTOP_CONFIG)"; \
+		echo "MCP server: $(MCP_SERVER_KEY) injected into Claude Desktop config"; \
+	fi
+	@echo ""
+	@echo "Skill built. Install manually in Claude Desktop:"
+	@echo "  Skill: Open Settings > Features > Add Skill, upload $(DIST_SKILL)/$(SKILL_NAME).zip"
+	@echo ""
+endif
+
+# Install Claude Code plugin
+# Usage: make install-claude-code                      # local (default): local plugin + local MCP
+#        make install-claude-code MCP_TARGET=remote     # marketplace plugin (remote MCP built-in)
+install-claude-code:
+ifeq ($(MCP_TARGET),local)
+	@if [ ! -f .mcp.json ]; then echo '{"mcpServers":{}}' > .mcp.json; fi
+	@jq --argjson cfg "$$(jq '.mcpServers.$(MCP_SERVER_KEY)' .claude-plugin/mcp-local.json)" \
+		'.mcpServers.$(MCP_SERVER_KEY) = $$cfg' .mcp.json > .mcp.json.tmp \
+		&& mv .mcp.json.tmp .mcp.json
+	@echo "MCP server: local (stdio via pixi) -> .mcp.json"
+	claude plugin install --scope user .
+	@echo "Plugin: installed from local directory"
+else ifeq ($(MCP_TARGET),remote)
+	claude plugin marketplace add francisco-perez-sorrosal/bit-agora
+	claude plugin install --scope user linkedin-mcp
+	@echo "Plugin: linkedin-mcp installed from bit-agora marketplace"
+endif
+
+# --- Clean ---
 
 clean:
-	pixi clean
-	rm -rf mcpb-package/*.mcpb
+	rm -rf $(DIST_DIR)/ mcpb-package/*.mcpb

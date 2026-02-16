@@ -1,7 +1,7 @@
-"linkedin_mcp_fps": {
+{
   "command": "npx",
   "args": [
     "mcp-remote",
-    "https://linkedin-mcp-fps.onrender.com/sse"
+    "https://linkedin-mcp-fps.onrender.com/mcp"
   ]
 }

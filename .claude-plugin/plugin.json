@@ -1,0 +1,20 @@
+{
+  "name": "linkedin-mcp",
+  "version": "0.1.0",
+  "description": "LinkedIn job search MCP server with autonomous background scraping and job search skills",
+  "author": {
+    "name": "Francisco Perez-Sorrosal",
+    "email": "fperezsorrosal@gmail.com",
+    "url": "https://github.com/francisco-perez-sorrosal"
+  },
+  "repository": "https://github.com/francisco-perez-sorrosal/linkedin-mcp",
+  "license": "MIT",
+  "keywords": ["linkedin", "jobs", "mcp", "scraping"],
+  "skills": ["./skills/"],
+  "mcpServers": {
+    "linkedin_mcp_fps": {
+      "command": "npx",
+      "args": ["mcp-remote", "https://linkedin-mcp-fps.onrender.com/mcp"]
+    }
+  }
+}
