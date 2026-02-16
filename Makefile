@@ -22,7 +22,8 @@ build-mcpb:
 	pixi install
 	pixi run update-mcpb-deps
 	pixi run mcp-bundle
-	DIST_MCPB=$(DIST_MCPB) pixi run pack
+	mkdir -p $(DIST_MCPB)
+	npx @anthropic-ai/mcpb pack . $(DIST_MCPB)/linkedin-mcp-fps.mcpb
 
 build-skill:
 	mkdir -p $(DIST_SKILL)

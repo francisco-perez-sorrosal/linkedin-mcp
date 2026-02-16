@@ -3,11 +3,12 @@
   "name": "linkedin-mcp-fps",
   "display_name": "FPS LinkedIn MCP Server",
   "version": "0.0.1",
-  "description": "MCP server that provides LinkedIn job search, scraping, and CV adaptation functionality",
-  "long_description": "A comprehensive MCP server that enables LinkedIn job searching, detailed job metadata extraction, and CV adaptation based on job requirements. Features include job search URL generation, job ID retrieval, job metadata scraping with caching, and intelligent CV customization.",
+  "description": "LinkedIn job search MCP server with autonomous background scraping, database queries, and application tracking",
+  "long_description": "An MCP server that provides LinkedIn job searching with autonomous background scraping into a SQLite database. Features include: live job exploration, composable database queries with full-text search, scraping profile management, application tracking, job change detection, and cache analytics. Supports both local (stdio) and remote (streamable-http) deployment.",
   "author": {
-    "name": "Francisco Perez Sorrosal",
-    "email": "fperezsorrosal@gmail.com"
+    "name": "Francisco Perez-Sorrosal",
+    "email": "fperezsorrosal@gmail.com",
+    "url": "https://github.com/francisco-perez-sorrosal"
   },
   "license": "MIT",
   "homepage": "https://github.com/francisco-perez-sorrosal/linkedin-mcp",
@@ -15,45 +16,70 @@
     "type": "git",
     "url": "https://github.com/francisco-perez-sorrosal/linkedin-mcp.git"
   },
-  "keywords": ["linkedin", "jobs", "cv", "resume", "career", "mcp", "scraping"],
+  "keywords": ["linkedin", "jobs", "mcp", "scraping", "job-search", "career"],
   "server": {
     "type": "python",
     "entry_point": "src/linkedin_mcp_server/main.py",
     "mcp_config": {
-      "command": "python3",
+      "command": "uv",
       "args": [
-        "${__dirname}/src/linkedin_mcp_server/main.py"
+        "run",
+        "--python", "3.11",
+        "${__dirname}/src/linkedin_mcp_server/main.py",
+        "--transport", "stdio"
       ],
       "env": {
-        "PYTHONPATH": "${__dirname}/lib:${__dirname}/src:${__dirname}"
+        "PYTHONPATH": "${__dirname}/lib:${__dirname}/src:${__dirname}",
+        "TRANSPORT": "stdio",
+        "HOST": "0.0.0.0",
+        "PORT": "10000"
       }
     }
   },
   "tools": [
     {
-      "name": "get_url_for_jobs_search",
-      "description": "Generate LinkedIn job search URLs with location, distance, and query parameters"
+      "name": "explore_latest_jobs",
+      "description": "Live scrape 1-10 most recent jobs matching keywords, location, and distance"
     },
     {
-      "name": "get_new_job_ids",
-      "description": "Retrieve job IDs from LinkedIn job search pages with pagination support"
+      "name": "query_jobs",
+      "description": "Instant database query with composable filters (company, location, keywords, remote, visa)"
     },
     {
-      "name": "get_jobs_raw_metadata",
-      "description": "Extract detailed job metadata including title, company, location, description, and requirements"
+      "name": "add_scraping_profile",
+      "description": "Add an autonomous background scraping profile"
     },
     {
-      "name": "tailor_cv",
-      "description": "Adapt Francisco's CV to match specific job requirements and descriptions"
+      "name": "list_scraping_profiles",
+      "description": "List all scraping profiles with status"
+    },
+    {
+      "name": "update_scraping_profile",
+      "description": "Update scraping profile configuration"
+    },
+    {
+      "name": "delete_scraping_profile",
+      "description": "Disable or hard-delete a scraping profile"
+    },
+    {
+      "name": "mark_job_applied",
+      "description": "Track a job application with optional notes"
+    },
+    {
+      "name": "update_application_status",
+      "description": "Update application status (applied, interviewing, rejected, offered, accepted)"
+    },
+    {
+      "name": "list_applications",
+      "description": "Query tracked applications by status"
+    },
+    {
+      "name": "get_cache_analytics",
+      "description": "Database statistics, scraping profile status, and cache health"
+    },
+    {
+      "name": "get_job_changes",
+      "description": "Track field changes (salary, applicants, description) over time"
     }
-  ],
-  "prompts": [
-    {
-      "name": "tailor_cv_to_job",
-      "text": "Prompt for getting the latest job generating a tailored version of Francisco Perez-Sorrosal's CV based on the specified parameters."
-    }
-  ],
-  "compatibility": {
-    "python": ">=3.13"
-  }
+  ]
 }

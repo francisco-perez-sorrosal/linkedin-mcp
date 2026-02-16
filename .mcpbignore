@@ -24,9 +24,9 @@ pip-delete-this-directory.txt
 # Build and distribution files
 build/
 dist/
+mcpb-package/
 *.egg-info/
 .tox/
-.coverage
 htmlcov/
 
 # OS files
@@ -38,16 +38,42 @@ Dockerfile
 .dockerignore
 pixi.lock
 runtime.txt
+pyproject.toml
+uv.lock
+requirements.txt
 
-# Test and documentation files
+# Test files
 tests/
+test_*.py
+
+# Documentation (not needed in bundle)
 docs/
 DXT_README.md
 LICENSE
+CLAUDE.md
+README.md
 
 # Large example files
 main_page.html
 linkedin_test_*
 
-# Claude settings (sensitive)
+# Claude settings and plugin (Claude Code, not MCPB)
 .claude/
+.claude-plugin/
+.mcp.json
+
+# AI pipeline artifacts
+.ai-state/
+.ai-work/
+
+# Install and build scripts (not needed in bundle)
+install.sh
+install_claude_desktop_mcp.sh
+Makefile
+config/
+
+# Skills (Claude Code plugin, not MCPB)
+skills/
+
+# GitHub
+.github/

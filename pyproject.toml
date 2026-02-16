@@ -6,7 +6,7 @@ license = {text = "MIT"}
 authors = [
     {name = "Francisco Perez Sorrosal", email = "fperezsorrosal@gmail.com"}
 ]
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -20,9 +20,8 @@ dependencies = [
     "httpx>=0.28.1,<0.29",
     "mcp[cli]>=1.26.0,<2",
     "beautifulsoup4>=4.13.4,<5",
-    "jsonlines>=4.0.0,<5",
+    "pydantic>=2.10.6,<3",
     "loguru>=0.7.3,<0.8",
-    "pyyaml>=6.0,<7",
 ]
 
 [project.urls]
@@ -43,9 +42,9 @@ linkedin_mcp_server = { path = ".", editable = true }
 [tool.pixi.tasks]
 mcps="python src/linkedin_mcp_server/main.py"
 # MCP Bundle
-update-mcpb-deps="rm -rf uv.lock && pixi run uv sync && pixi run uv lock && pixi run uv export --no-hashes --format requirements-txt > requirements.txt"
-mcp-bundle="rm -rf lib/ && mkdir -p lib && pixi run python -m pip install -r requirements.txt --target lib --upgrade --force-reinstall"
-pack = "npx @anthropic-ai/mcpb pack . mcpb-package/linkedin-mcp-fps.mcpb"
+update-mcpb-deps = "rm -rf uv.lock && pixi run uv sync && pixi run uv lock && pixi run uv export --no-hashes --no-emit-project --format requirements-txt > requirements.txt"
+mcp-bundle="rm -rf lib/ && mkdir -p lib && uv pip install -r requirements.txt --target lib --python-version 3.11"
+pack = "npx @anthropic-ai/mcpb pack . dist/mcpb-package/linkedin-mcp-fps.mcpb"
 test = "PYTHONPATH=src pytest tests/"
 test-db = "PYTHONPATH=src pytest tests/test_db.py -v"
 

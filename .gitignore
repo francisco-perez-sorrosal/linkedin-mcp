@@ -294,9 +294,9 @@ linkedin_test_*.html
 linkedin_test_*.jsonl
 linkedin_test_*.json
 
-# lib
+# lib & dist
 lib/
-mcpb-package/
+dist/
 
 # AI assistants
 .ai-work/
