@@ -7,8 +7,6 @@ description: >
   wants to search for jobs, find job listings, browse LinkedIn job postings,
   or look for positions. Trigger terms: job search, find jobs, LinkedIn jobs,
   job listings, search positions, job hunt.
-allowed-tools:
-  - "mcp__claude_ai_FPS_Linkedin_CV__*"
 ---
 
 # LinkedIn Job Search
