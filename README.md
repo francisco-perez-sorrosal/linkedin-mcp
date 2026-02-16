@@ -1,20 +1,25 @@
 # LinkedIn Job Search for Claude
 
-A combined MCP server and skills system for searching LinkedIn jobs, retrieving detailed job metadata, and tailoring CVs. Integrates with Claude Desktop and Claude Code through both server-side tools and client-side workflow orchestration.
+An autonomous MCP server that continuously scrapes LinkedIn jobs and provides instant database-backed queries. Features background scraping profiles, application tracking, and composable response models.
 
 ## Features
 
 ### MCP Server (Backend)
+- **Autonomous background scraping** — Configurable profiles that scrape continuously
+- **SQLite database** with FTS5 full-text search and WAL mode for concurrent access
+- **11 MCP tools** organized into 4 categories: Query, Profile Management, Application Tracking, Analytics
+- **Cache-first serving** — Instant (<100ms) queries from local database
 - **Async HTTP scraping** with httpx (no browser required)
-- **Two-tier tool surface**: `search_jobs` + `get_job_details` for efficient data retrieval
-- **JSONL-based caching** to avoid re-scraping jobs
-- **LinkedIn guest API** integration for unauthenticated access
-- **Semaphore-based concurrency control** with rate limiting and backoff
+- **Composable Pydantic models** — Token-efficient responses with `exclude_none=True`
 
-### Claude Code Skills (Frontend)
-- **`linkedin-job-search`** — 5-step interactive workflow for searching and selecting jobs
-- **`cv-tailoring`** — 3-phase methodology for adapting CVs to job descriptions
-- **Default parameters** — San Francisco, "AI Engineer or ML Engineer" for quick searches
+### Integrated Features
+1. **Job Querying** — Composable filters (company, location, keywords, remote, visa, posted date)
+2. **Live Exploration** — On-demand scraping for 1-10 most recent jobs
+3. **Profile Management** — Add/update/delete autonomous scraping profiles
+4. **Application Tracking** — Track application status and notes
+5. **Company Enrichment** — Automatic company metadata lookup
+6. **Job Change Detection** — Audit log for field changes over time
+7. **Analytics** — Database statistics and scraping profile health
 
 ## Prerequisites
 
@@ -37,19 +42,25 @@ pixi install
 ```
 linkedin-mcp/
 ├── src/linkedin_mcp_server/
-│   ├── main.py          # FastMCP server with async tools
-│   ├── scraper.py       # Async HTTP scraper (httpx + BeautifulSoup)
-│   ├── cache.py         # JSONL persistent cache
-│   ├── utils.py         # YAML prompt loader
-│   └── prompts/
-│       └── tailor_cv.yaml
+│   ├── main.py                  # FastMCP server with 11 async tools
+│   ├── db.py                    # SQLite database layer with FTS5 search
+│   ├── background_scraper.py    # Autonomous background scraping service
+│   ├── scraper.py               # Async HTTP scraper (httpx + BeautifulSoup)
+│   ├── models.py                # Pydantic response models (composable)
+│   └── migrate_cache.py         # JSONL → SQLite migration script
 ├── skills/
-│   ├── linkedin-job-search/  # Job search orchestration skill
-│   └── cv-tailoring/         # CV tailoring skill
+│   └── linkedin-job-search/     # Job search orchestration skill
+│       ├── SKILL.md
+│       └── references/
+│           └── tool-mapping.md
 ├── tests/
-│   ├── test_cache.py
-│   ├── test_scraper.py
-│   └── fixtures/
+│   ├── test_db.py               # Database unit tests (37 tests)
+│   ├── test_scraper.py          # Scraper parsing tests (33 tests)
+│   ├── test_background_scraper.py  # Background scraper tests (17 tests)
+│   ├── test_integration.py      # End-to-end tests (6 tests)
+│   ├── test_migrate_cache.py    # Migration tests (7 tests)
+│   ├── test_models.py           # Pydantic model tests (17 tests)
+│   └── fixtures/                # HTML fixtures for tests
 └── pyproject.toml
 ```
 
@@ -87,51 +98,73 @@ pixi run build     # Build package (creates sdist/wheel in dist/)
 
 ## MCP Tools
 
-The server exposes three tools:
+The server exposes 11 tools organized into 4 categories. For detailed tool comparison, default parameters, and usage patterns, see `skills/linkedin-job-search/references/tool-mapping.md`.
 
-### 1. search_jobs
+### Job Query Tools
 
-Search LinkedIn jobs and return summary data from search result cards.
+#### 1. explore_latest_jobs
+Live scraping for 1-10 most recent jobs (10-30 seconds).
 
 ```python
-search_jobs(
-    query="AI Engineer or ML Engineer",
-    location="San Francisco",
-    distance=25,
-    num_pages=1,
-    experience_level=None,  # 1-6: Intern to Executive
-    job_type=None,          # F/P/C/T/V/I/O: Full-time, Part-time, Contract, etc.
-    work_arrangement=None,  # 1/2/3: On-site, Remote, Hybrid
-    time_posted=None        # r86400/r604800/r2592000: 24h, 1week, 1month
+explore_latest_jobs(
+    keywords="AI Engineer or ML Engineer or Principal Research Engineer",
+    location="San Francisco, CA",
+    distance=25,  # miles
+    limit=1       # max 10
 )
 ```
 
-**Returns:** List of job summaries with title, company, location, date, URL, job_id.
-
-### 2. get_job_details
-
-Fetch full metadata for specific job IDs. Uses cache when available.
+#### 2. query_jobs
+Instant database queries with composable filters (<100ms).
 
 ```python
-get_job_details(job_ids=["123456789", "987654321"])
-```
-
-**Returns:** Dict mapping job_id to full metadata (description, seniority, employment type, applicants, salary, etc.).
-
-### 3. tailor_cv
-
-CV tailoring prompt orchestration (requires CV MCP server).
-
-```python
-tailor_cv(
-    job_description="",
-    position="Research Engineer or ML Engineer or AI Engineer",
+query_jobs(
+    company="Anthropic",
     location="San Francisco",
-    job_id="first"
+    keywords="ML Engineer",
+    posted_after_hours=168,  # Last week
+    remote_only=True,
+    visa_sponsorship=True,
+    limit=20,
+    sort_by="posted_date_iso",
+    include_description_insights=True,
+    include_metadata=False,
+    include_full_description=False
 )
 ```
 
-**Returns:** Instructions for the CV tailoring workflow.
+### Profile Management Tools
+
+#### 3. add_scraping_profile
+Add autonomous scraping profile (worker spawns within 30s).
+
+#### 4. list_scraping_profiles
+List all scraping profiles with status.
+
+#### 5. update_scraping_profile
+Update profile configuration (changes apply on next reload).
+
+#### 6. delete_scraping_profile
+Disable (soft delete) or permanently delete profile.
+
+### Application Tracking Tools
+
+#### 7. mark_job_applied
+Track job application with optional notes.
+
+#### 8. update_application_status
+Update status (applied → interviewing → offered/rejected).
+
+#### 9. list_applications
+Query applications by status.
+
+### Analytics Tools
+
+#### 10. get_cache_analytics
+Database statistics, scraping profile health, application counts.
+
+#### 11. get_job_changes
+Audit log of field changes over time.
 
 ## Claude Desktop Integration
 
@@ -183,17 +216,20 @@ The output file `linkedin-mcp-fps.mcpb` is created in `mcpb-package/`. Double-cl
 
 ## Claude Code Skills
 
-Two client-side skills for workflow orchestration (located in `skills/`):
+Client-side skill for workflow orchestration (located in `skills/`):
 
 ### linkedin-job-search
 
-5-step interactive workflow: gather params → search → present table → fetch details → offer next actions. Activate with: "find jobs", "search positions", "job hunt".
+Interactive workflow for job searching:
+- Step 1: Gather search parameters (keywords, location, distance, limit)
+- Step 2: Choose between live exploration or database query
+- Step 3: Present results in scannable table
+- Step 4: Refine search with different filters
+- Step 5: Offer next actions
 
-### cv-tailoring
+Activate with: "find jobs", "search positions", "job hunt".
 
-3-phase methodology for adapting Francisco's CV to job descriptions. Orchestrates LinkedIn MCP and CV MCP tools. Activate with: "tailor CV", "adapt resume", "CV for job".
-
-See each skill's `SKILL.md` for detailed documentation.
+See `skills/linkedin-job-search/SKILL.md` for detailed documentation.
 
 ## Architecture
 
@@ -201,24 +237,35 @@ See each skill's `SKILL.md` for detailed documentation.
 
 - Built with FastMCP framework
 - Configurable transport modes: stdio, streamable-http
-- Async/await with httpx for non-blocking HTTP operations
-- Auto-detects transport mode from environment variables (TRANSPORT, HOST, PORT)
+- 11 async tools for job querying, profile management, application tracking, and analytics
+- Cache-first serving: queries return instantly from SQLite database
+- Auto-detects transport mode from environment variables
 
-### 2. Async Scraper (`scraper.py`)
+### 2. Database Layer (`db.py`)
 
-- Uses httpx AsyncClient for lightweight HTTP scraping
-- LinkedIn guest API returns server-rendered HTML (no browser required)
-- Semaphore-based concurrency control (default: 5 concurrent requests)
-- Rate limiting with random delays (1-3s) and exponential backoff on 429/503
+- SQLite with WAL mode for concurrent reads/writes
+- FTS5 full-text search on job descriptions and titles
+- 5 tables: jobs, scraping_profiles, applications, company_enrichment, job_changes
+- Default location: `~/.linkedin-mcp/jobs.db`
+- Composable queries with multiple filters
+- Performance: <100ms for typical queries
+
+### 3. Background Scraper Service (`background_scraper.py`)
+
+- Runs continuously in MCP server process (async tasks)
+- One worker per scraping profile (configurable via MCP tools)
+- Default profile: San Francisco, CA, 25mi, "AI Engineer or ML Engineer or Principal Research Engineer", 2h refresh
+- Semaphore(10) for job scraping, Semaphore(2) for company enrichment
+- Adaptive rate limiting with exponential backoff
+- Graceful startup/shutdown with asyncio task coordination
+
+### 4. Web Scraper (`scraper.py`)
+
+- Async httpx for LinkedIn Guest API (no Selenium required)
+- Enhanced extraction: salary parsing, remote/visa detection, skills extraction
+- Company name normalization for fuzzy matching
 - Frozen dataclasses for type safety: `JobSummary`, `JobDetail`
-
-### 3. Caching System (`cache.py`)
-
-- JSONL-based persistent cache to avoid re-scraping jobs
-- In-memory cache for fast lookups
-- Batch insertion with `put_batch()` for efficient bulk updates
-- Atomic flush with temp-file-then-rename for data integrity
-- Default cache location: `~/.linkedin-mcp/raw_job_description_cache/`
+- Rate limiting with random delays (1-3s) and exponential backoff
 
 ## LinkedIn API Endpoints
 
@@ -238,25 +285,31 @@ The system uses LinkedIn's guest API:
 
 | Package | Version | Role |
 |---------|---------|------|
-| `httpx` | >=0.28.1,<0.29 | Async HTTP client |
+| `httpx` | >=0.28.1,<0.29 | Async HTTP client for LinkedIn API |
 | `mcp[cli]` | >=1.9.2,<2 | FastMCP framework |
 | `beautifulsoup4` | >=4.13.4,<5 | HTML parsing |
-| `jsonlines` | >=4.0.0,<5 | JSONL cache persistence |
+| `pydantic` | >=2.10.6,<3 | Composable response models with exclude_none |
 | `loguru` | >=0.7.3,<0.8 | Structured logging |
-| `pyyaml` | >=6.0,<7 | YAML prompt loading |
+
+**Removed:** `selenium`, `requests`, `jsonlines`, `pyyaml` (cache.py deleted, moved to SQLite)
 
 All dependencies are managed via Pixi (see `pyproject.toml`).
 
-## Cache Management
+## Migration from JSONL Cache
 
-The system uses a local cache to avoid re-scraping jobs:
+If you have existing JSONL cache from v0.2.0, run the migration script:
 
-- **Location:** `~/.linkedin-mcp/raw_job_description_cache/`
-- **Format:** JSONL (one job per line)
-- **Automatic:** Cached jobs are returned immediately; uncached jobs trigger scraping and cache insertion
-- **Persistence:** In-memory cache + on-disk JSONL file
+```bash
+pixi run python src/linkedin_mcp_server/migrate_cache.py
+```
 
-To clear the cache, delete the directory manually.
+This will:
+- Backup existing JSONL cache (creates `.jsonl.backup`)
+- Migrate all jobs to SQLite database at `~/.linkedin-mcp/jobs.db`
+- Transform and populate enhanced fields (salary, remote, visa, skills)
+- Preserve all original job data
+
+The migration is idempotent and can be safely rerun. After migration, the JSONL cache is no longer used.
 
 ## Deployment
 
@@ -283,32 +336,44 @@ python-3.13.0
 
 ## Usage Examples
 
-### Basic Job Search
+### Query Cached Jobs
 
 ```text
-Search for ML Engineer jobs in San Francisco (2 pages)
+Find remote ML Engineer jobs at Anthropic posted in the last week
 ```
 
-### Retrieve Job Details
+### Live Exploration
 
 ```text
-Get full details for job IDs 1234567890 and 0987654321
+Explore the 5 most recent AI Engineer jobs in Seattle
 ```
 
-### Combined Workflow with CV Tailoring
+### Profile Management
 
 ```text
-Search for research engineer positions in New York,
-show me the top results, then tailor Francisco's CV
-to the most relevant job
+Add a scraping profile for Research Engineer jobs in Boston, 35 mile radius, refresh every 4 hours
+```
+
+### Application Tracking
+
+```text
+Mark job 1234567890 as applied with note "Applied via company website"
+```
+
+```text
+Update application status for job 1234567890 to interviewing with note "Phone screen scheduled for Friday"
+```
+
+### Analytics
+
+```text
+Show me cache analytics and scraping profile status
 ```
 
 ### Using Skills
 
 ```text
-@linkedin-job-search Find AI Engineer jobs in Seattle
-
-@cv-tailoring Adapt Francisco's CV to job ID 4122691570
+@linkedin-job-search Find remote Python Engineer jobs in New York
 ```
 
 ## Troubleshooting
@@ -316,10 +381,24 @@ to the most relevant job
 | Issue | Solution |
 |-------|----------|
 | Import errors | Run `pixi install` to install dependencies |
-| Connection errors | Check internet connection; LinkedIn may be blocking requests |
-| Rate limiting (429/503) | Reduce concurrency or wait before retrying (backoff is automatic) |
-| Permission errors | Ensure the cache directory `~/.linkedin-mcp/` is writable |
-| Empty results | Verify search parameters; some location/query combinations return no results |
+| Database locked | Another process may have the database open; close other connections |
+| Background scraper not running | Check logs; verify profile is enabled in `list_scraping_profiles()` |
+| Empty query results | Database may be empty; wait for first scrape or use `explore_latest_jobs()` |
+| Rate limiting (429/503) | Automatic backoff; check logs for error rates |
+| Permission errors | Ensure `~/.linkedin-mcp/` directory is writable |
+| Migration failed | Restore from `.jsonl.backup` and retry; check logs for errors |
+
+## Future Enhancements
+
+### Additional Client-Side Skills
+Create workflow orchestration skills for uncovered tool categories:
+- **Profile Management Skill** — Interactive workflow for configuring autonomous scraping profiles
+- **Application Tracking Skill** — Guide user through marking applications and tracking status changes
+- **Analytics Skill** — Present cache statistics and job trends in scannable format
+
+Currently, only job search has a dedicated skill. Other tools are accessed directly via MCP.
+
+See CLAUDE.md Future Enhancements section for additional features (duplicate detection, ML scoring, proxy support, etc.).
 
 ## Support
 

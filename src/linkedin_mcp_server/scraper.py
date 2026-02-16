@@ -82,6 +82,7 @@ class JobDetail:
     company_url: str
     location: str
     posted_date: str
+    posted_date_iso: str
     number_of_applicants: str
     salary: str
     raw_description: str
@@ -89,8 +90,18 @@ class JobDetail:
     seniority_level: str
     job_function: str
     industries: str
-    skills: str
+    skills: list[str]  # Changed from str to list[str]
     company_details: str
+
+    # New enhanced fields (Step 7)
+    salary_min: float | None
+    salary_max: float | None
+    salary_currency: str
+    equity_offered: bool
+    remote_eligible: bool
+    visa_sponsorship: bool
+    easy_apply: bool
+    normalized_company_name: str
 
 
 def parse_search_card(card: Tag) -> JobSummary:
@@ -103,13 +114,17 @@ def parse_search_card(card: Tag) -> JobSummary:
         JobSummary with extracted fields
     """
     try:
-        # Extract job ID from data-entity-urn attribute
-        urn_element = card.select_one(SELECTORS["card_entity_urn"])
+        # Extract job ID from data-entity-urn attribute (check card itself or child elements)
         job_id = "N/A"
-        if urn_element and urn_element.get("data-entity-urn"):
-            urn = urn_element["data-entity-urn"]
-            if "urn:li:jobPosting:" in str(urn):
-                job_id = str(urn).split(":")[-1]
+        urn = card.get("data-entity-urn")
+        if not urn:
+            # Check child elements if not on card itself
+            urn_element = card.select_one(SELECTORS["card_entity_urn"])
+            if urn_element:
+                urn = urn_element.get("data-entity-urn")
+
+        if urn and "urn:li:jobPosting:" in str(urn):
+            job_id = str(urn).split(":")[-1]
 
         # Extract other fields with fallbacks
         title_el = card.select_one(SELECTORS["card_title"])
@@ -208,9 +223,9 @@ def parse_job_detail_page(html: str, job_id: str) -> JobDetail:
         job_function = "N/A"
         industries = "N/A"
 
-        for idx, item in enumerate(criteria_items):
-            header = item.select_one("h3")
-            value = item.select_one("span")
+        for item in enumerate(criteria_items):
+            header = item[1].select_one("h3")
+            value = item[1].select_one("span")
             if header and value:
                 header_text = header.get_text(strip=True)
                 value_text = value.get_text(strip=True)
@@ -224,6 +239,28 @@ def parse_job_detail_page(html: str, job_id: str) -> JobDetail:
                 elif "industries" in header_text.lower():
                     industries = f"{header_text.lower()}\n{value_text}"
 
+        # Extract enhanced metadata using extraction functions (Step 7)
+        from linkedin_mcp_server.db import normalize_company_name
+
+        # Parse salary structure
+        salary_data = extract_salary_structured(salary)
+
+        # Extract from description
+        description_text = description_el.get_text(strip=True) if description_el else "N/A"
+        skills_list = extract_skills(description_text)
+        remote = extract_remote_eligibility(description_text)
+        visa = extract_visa_sponsorship(description_text)
+
+        # Detect easy apply (check for easy apply badge/button)
+        easy_apply_el = soup.select_one(".jobs-apply-button--top-card") or soup.select_one("[aria-label*='Easy Apply']")
+        easy_apply = easy_apply_el is not None
+
+        # Get posted_date_iso (extract from posted_date_el if datetime attribute exists)
+        # Try to get ISO date from datetime attribute, fall back to posted_date text
+        posted_date_el = soup.select_one(SELECTORS["detail_posted_date"])
+        posted_date_iso_raw = posted_date_el.get("datetime") if posted_date_el and hasattr(posted_date_el, "get") else None
+        posted_date_iso = str(posted_date_iso_raw) if posted_date_iso_raw else posted_date
+
         return JobDetail(
             job_id=job_id,
             url=url,
@@ -234,6 +271,7 @@ def parse_job_detail_page(html: str, job_id: str) -> JobDetail:
             company_url=str(company_url),
             location=location,
             posted_date=posted_date,
+            posted_date_iso=posted_date_iso,
             number_of_applicants=applicants,
             salary=salary,
             raw_description=raw_description,
@@ -241,8 +279,17 @@ def parse_job_detail_page(html: str, job_id: str) -> JobDetail:
             seniority_level=seniority,
             job_function=job_function,
             industries=industries,
-            skills="N/A",  # Not reliably available in guest API
+            skills=skills_list,
             company_details="N/A",  # Not reliably available in guest API
+            # Enhanced fields
+            salary_min=salary_data["min"],
+            salary_max=salary_data["max"],
+            salary_currency=salary_data["currency"],
+            equity_offered=salary_data["equity_offered"],
+            remote_eligible=remote,
+            visa_sponsorship=visa,
+            easy_apply=easy_apply,
+            normalized_company_name=normalize_company_name(company),
         )
     except Exception as e:
         logger.error(f"Error parsing job detail for {job_id}: {e}")
@@ -256,6 +303,7 @@ def parse_job_detail_page(html: str, job_id: str) -> JobDetail:
             company_url="N/A",
             location="N/A",
             posted_date="N/A",
+            posted_date_iso="N/A",
             number_of_applicants="N/A",
             salary="N/A",
             raw_description="N/A",
@@ -263,8 +311,17 @@ def parse_job_detail_page(html: str, job_id: str) -> JobDetail:
             seniority_level="N/A",
             job_function="N/A",
             industries="N/A",
-            skills="N/A",
+            skills=[],
             company_details="N/A",
+            # Enhanced fields - safe defaults
+            salary_min=None,
+            salary_max=None,
+            salary_currency="USD",
+            equity_offered=False,
+            remote_eligible=False,
+            visa_sponsorship=False,
+            easy_apply=False,
+            normalized_company_name="N/A",
         )
 
 
@@ -449,6 +506,7 @@ async def fetch_single_job_detail(
             company_url="N/A",
             location="N/A",
             posted_date="N/A",
+            posted_date_iso="N/A",
             number_of_applicants="N/A",
             salary="N/A",
             raw_description="N/A",
@@ -456,8 +514,17 @@ async def fetch_single_job_detail(
             seniority_level="N/A",
             job_function="N/A",
             industries="N/A",
-            skills="N/A",
+            skills=[],
             company_details="N/A",
+            # Enhanced fields - safe defaults
+            salary_min=None,
+            salary_max=None,
+            salary_currency="USD",
+            equity_offered=False,
+            remote_eligible=False,
+            visa_sponsorship=False,
+            easy_apply=False,
+            normalized_company_name="N/A",
         )
 
 
@@ -488,3 +555,236 @@ async def fetch_job_details(
             logger.error(f"Exception during detail fetch: {result}")
 
     return details
+
+
+# ========== Enhanced Extraction Functions (Phase 2) ==========
+
+
+def extract_salary_structured(salary_text: str) -> dict:
+    """
+    Parse salary text into structured min/max/currency/equity.
+
+    Examples:
+        "$120K - $180K" → {"min": 120000, "max": 180000, "currency": "USD", "equity_offered": False}
+        "$150,000/yr + equity" → {"min": 150000, "max": 150000, "currency": "USD", "equity_offered": True}
+        "€60K - €80K" → {"min": 60000, "max": 80000, "currency": "EUR", "equity_offered": False}
+
+    Args:
+        salary_text: Raw salary text from job posting
+
+    Returns:
+        Dictionary with min, max, currency, and equity_offered
+    """
+    import re
+
+    result = {"min": None, "max": None, "currency": "USD", "equity_offered": False}
+
+    if not salary_text or salary_text == "N/A":
+        return result
+
+    # Detect equity
+    equity_keywords = ["equity", "stock options", "rsu", "options", "stock"]
+    result["equity_offered"] = any(kw in salary_text.lower() for kw in equity_keywords)
+
+    # Detect currency
+    currency_map = {
+        "$": "USD",
+        "£": "GBP",
+        "€": "EUR",
+        "¥": "JPY",
+    }
+    for symbol, code in currency_map.items():
+        if symbol in salary_text:
+            result["currency"] = code
+            break
+
+    # Extract numbers (handle K/k suffix and commas)
+    # Pattern: optional currency symbol, digits, optional comma, optional K/k
+    pattern = r'[\$£€¥]?\s*(\d{1,3}(?:,\d{3})*(?:\.\d+)?)\s*[Kk]?'
+    matches = re.findall(pattern, salary_text)
+
+    if not matches:
+        return result
+
+    # Parse matches
+    nums = []
+    for match in matches:
+        # Remove commas
+        num_str = match.replace(',', '')
+        num = float(num_str)
+
+        # Check if K/k suffix present in original text
+        if 'k' in salary_text.lower():
+            # Heuristic: if number < 1000, assume it's in thousands
+            if num < 1000:
+                num *= 1000
+
+        nums.append(int(num))
+
+    # Assign min/max
+    if len(nums) == 1:
+        result["min"] = nums[0]
+        result["max"] = nums[0]
+    elif len(nums) >= 2:
+        result["min"] = min(nums[0], nums[1])
+        result["max"] = max(nums[0], nums[1])
+
+    return result
+
+
+def extract_remote_eligibility(description: str) -> bool:
+    """
+    Detect remote work keywords in job description.
+
+    Args:
+        description: Raw job description text
+
+    Returns:
+        True if remote keywords found, False otherwise
+    """
+    if not description or description == "N/A":
+        return False
+
+    desc_lower = description.lower()
+    remote_keywords = [
+        "remote", "work from home", "wfh", "distributed", "anywhere",
+        "fully remote", "remote-first", "remote work", "work remotely"
+    ]
+
+    return any(kw in desc_lower for kw in remote_keywords)
+
+
+def extract_visa_sponsorship(description: str) -> bool:
+    """
+    Detect visa sponsorship keywords in job description.
+
+    Args:
+        description: Raw job description text
+
+    Returns:
+        True if visa sponsorship keywords found, False otherwise
+    """
+    if not description or description == "N/A":
+        return False
+
+    desc_lower = description.lower()
+    visa_keywords = [
+        "visa sponsorship", "h1b", "h-1b", "work authorization",
+        "sponsorship available", "sponsor visa", "visa support",
+        "eligible for visa", "can sponsor"
+    ]
+
+    return any(kw in desc_lower for kw in visa_keywords)
+
+
+def extract_skills(description: str) -> list[str]:
+    """
+    Extract common tech skills from job description (best-effort).
+
+    Args:
+        description: Raw job description text
+
+    Returns:
+        Sorted list of detected skills
+    """
+    import re
+
+    if not description or description == "N/A":
+        return []
+
+    # Common tech skills to look for
+    skill_patterns = [
+        # Programming languages
+        r'\bPython\b', r'\bJava\b', r'\bC\+\+\b', r'\bGo\b', r'\bRust\b',
+        r'\bJavaScript\b', r'\bTypeScript\b', r'\bScala\b', r'\bKotlin\b',
+
+        # ML/AI frameworks
+        r'\bTensorFlow\b', r'\bPyTorch\b', r'\bKeras\b', r'\bscikit-learn\b',
+        r'\bHugging\s*Face\b', r'\bLangChain\b', r'\bOpenAI\b',
+
+        # Cloud platforms
+        r'\bAWS\b', r'\bGCP\b', r'\bGoogle\s*Cloud\b', r'\bAzure\b',
+
+        # Databases
+        r'\bPostgreSQL\b', r'\bMySQL\b', r'\bMongoDB\b', r'\bRedis\b',
+        r'\bSQLite\b', r'\bCassandra\b',
+
+        # DevOps/Tools
+        r'\bDocker\b', r'\bKubernetes\b', r'\bTerraform\b', r'\bGit\b',
+        r'\bCI/CD\b', r'\bJenkins\b', r'\bGitHub\s*Actions\b',
+
+        # Data tools
+        r'\bSpark\b', r'\bAirflow\b', r'\bKafka\b', r'\bdbt\b',
+        r'\bPandas\b', r'\bNumPy\b',
+    ]
+
+    found_skills = set()
+
+    for pattern in skill_patterns:
+        matches = re.findall(pattern, description, re.IGNORECASE)
+        for match in matches:
+            # Normalize capitalization (preserve original casing for acronyms)
+            if match.isupper() and len(match) <= 4:
+                found_skills.add(match.upper())
+            else:
+                found_skills.add(match.title())
+
+    return sorted(list(found_skills))
+
+
+def extract_description_insights(description_text: str) -> dict:
+    """
+    Extract summary and key requirements from job description for composable responses.
+
+    Args:
+        description_text: Raw job description text
+
+    Returns:
+        Dictionary with description_summary, key_requirements, and key_responsibilities_preview
+    """
+    import re
+
+    if not description_text or description_text == "N/A":
+        return {
+            "description_summary": None,
+            "key_requirements": [],
+            "key_responsibilities_preview": None
+        }
+
+    # Summary: first 300 chars (or first 2-3 sentences)
+    summary = description_text[:300].rsplit('.', 1)[0] + '.' if len(description_text) > 300 else description_text
+
+    # Extract key requirements
+    requirements = []
+
+    # Years of experience
+    exp_match = re.search(r'(\d+)\+?\s*years?\s*(of\s*)?(experience|exp)', description_text, re.I)
+    if exp_match:
+        requirements.append(f"{exp_match.group(1)}+ years experience")
+
+    # Degree requirements
+    degree_patterns = [r'(MS|Master|PhD|Doctorate|Bachelor|BS|BA)\s*(degree)?', r'(Graduate|Undergraduate)\s*degree']
+    for pattern in degree_patterns:
+        match = re.search(pattern, description_text, re.I)
+        if match:
+            requirements.append(match.group(0))
+            break
+
+    # Top skills (limit to 5)
+    found_skills = extract_skills(description_text)
+    requirements.extend(found_skills[:5])
+
+    # Key responsibilities (extract sentences starting with action verbs)
+    resp_verbs = ['Build', 'Design', 'Develop', 'Lead', 'Manage', 'Deploy', 'Create', 'Implement']
+    responsibilities = []
+    for line in description_text.split('\n'):
+        for verb in resp_verbs:
+            if line.strip().startswith(verb):
+                responsibilities.append(line.strip()[:80])
+                break
+
+    return {
+        "description_summary": summary,
+        "key_requirements": requirements,
+        "key_responsibilities_preview": " • ".join(responsibilities[:3]) if responsibilities else None
+    }

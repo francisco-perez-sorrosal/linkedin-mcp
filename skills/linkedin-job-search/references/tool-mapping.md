@@ -8,63 +8,138 @@ MCP tool names as registered in Claude Code for the LinkedIn MCP server.
 
 ## Available Tools
 
-| Logical Step | Tool Name | Key Parameters |
-|-------------|-----------|----------------|
-| Search jobs | `mcp__claude_ai_FPS_Linkedin_CV__search_jobs` | `query`, `location`, `distance`, `num_pages`, `experience_level`, `job_type`, `work_arrangement`, `time_posted` |
-| Get job details | `mcp__claude_ai_FPS_Linkedin_CV__get_job_details` | `job_ids` (list of strings) |
-| Tailor CV | `mcp__claude_ai_FPS_Linkedin_CV__tailor_cv` | `job_description`, `position`, `location`, `job_id` |
+| Purpose | Tool Name | Key Parameters |
+|---------|-----------|----------------|
+| Live exploration | `mcp__claude_ai_FPS_Linkedin_CV__explore_latest_jobs` | `location`, `keywords`, `distance`, `limit` |
+| Database queries | `mcp__claude_ai_FPS_Linkedin_CV__query_jobs` | `company`, `location`, `keywords`, `posted_after_hours`, `remote_only`, `visa_sponsorship`, `limit`, `sort_by`, `include_*` |
 
-## Call Pattern
+## Tool Comparison
 
-**Two-tier workflow:**
+### explore_latest_jobs()
+- **Purpose**: Quick exploration of latest LinkedIn jobs
+- **Data source**: Live web scraping
+- **Speed**: 10-30 seconds
+- **Limit**: 1-10 jobs (default: 1)
+- **Use when**: User wants fresh, recent jobs; database may be stale
 
-1. **Search for jobs** (fast, returns summaries)
-   ```python
-   summaries = search_jobs(
-       location="San Francisco",
-       query="ML Engineer",
-       distance=25,
-       num_pages=2
-   )
-   # Returns: list[dict] with keys:
-   #   job_id, title, company, company_url, location,
-   #   posted_date, posted_date_iso, job_url, benefits_badge
-   ```
+```python
+results = explore_latest_jobs(
+    location="San Francisco, CA",
+    keywords="AI Engineer or ML Engineer or Principal Research Engineer",
+    distance=25,
+    limit=1  # Max 10
+)
+# Returns: {"jobs": [...], "returned": N, "total": N, "limit": L}
+```
 
-2. **Present summaries to user, get selection**
+### query_jobs()
+- **Purpose**: Fast database queries with composable filters
+- **Data source**: SQLite cache (populated by background scraping)
+- **Speed**: Instant (<100ms)
+- **Limit**: Up to 20 jobs (default: 20)
+- **Use when**: User wants filtered results, remote jobs, visa sponsorship, company search
 
-3. **Fetch details for selected jobs** (slower, cached when available)
-   ```python
-   details = get_job_details(job_ids=["123", "456", "789"])
-   # Returns: dict[str, dict] mapping job_id to full metadata
-   #   (title, company, location, description, salary,
-   #    seniority, employment_type, skills, etc.)
-   ```
+```python
+results = query_jobs(
+    company="Anthropic",
+    location="San Francisco",
+    keywords="ML Engineer",
+    posted_after_hours=168,  # Last week
+    remote_only=True,
+    visa_sponsorship=True,
+    limit=20,
+    sort_by="posted_date_iso",
+    include_description_insights=True,
+    include_metadata=False,
+    include_full_description=False,
+)
+# Returns: {"jobs": [...], "returned": N, "total": M, "limit": L}
+```
 
 ## Default Parameters
 
 When parameters are not specified, these defaults apply:
 
-- `query`: "AI Engineer or ML Engineer"
-- `location`: "San Francisco"
+**explore_latest_jobs**:
+- `keywords`: "AI Engineer or ML Engineer or Principal Research Engineer"
+- `location`: "San Francisco, CA"
 - `distance`: 25 (miles)
-- `num_pages`: 1
+- `limit`: 1
 
-## Optional Filters
+**query_jobs**:
+- `limit`: 20
+- `sort_by`: "posted_date_iso"
+- `include_description_insights`: True
+- All other `include_*` flags: False
 
-The `search_jobs` tool accepts additional filter parameters:
+## Response Structure
 
-| Parameter | Values | Description |
-|-----------|--------|-------------|
-| `experience_level` | "1"-"6" | 1=Intern, 2=Entry, 3=Associate, 4=Mid-Senior, 5=Director, 6=Executive |
-| `job_type` | "F"/"P"/"C"/"T"/"V"/"I"/"O" | Full-time, Part-time, Contract, Temporary, Volunteer, Internship, Other |
-| `work_arrangement` | "1"/"2"/"3" | On-site, Remote, Hybrid |
-| `time_posted` | "r86400"/"r604800"/"r2592000" | Past 24 hours, Past week, Past month |
+Both tools return the same structure with composable Pydantic models:
+
+```json
+{
+  "jobs": [
+    {
+      "core": {
+        "job_id": "123456",
+        "title": "ML Engineer",
+        "company": "Anthropic",
+        "location": "San Francisco, CA",
+        "posted_date": "2 days ago",
+        "posted_date_iso": "2026-02-13T10:00:00Z"
+      },
+      "decision_making": {
+        "salary_range": "$150K - $200K",
+        "remote_eligible": true,
+        "visa_sponsorship": true,
+        "applicants": "50-100 applicants",
+        "easy_apply": false
+      },
+      "description_insights": {
+        "description_summary": "We are hiring...",
+        "key_requirements": ["Python", "PyTorch", "AWS"],
+        "key_responsibilities_preview": "Design and implement..."
+      },
+      "metadata": {  // Only if include_metadata=True
+        "job_url": "https://linkedin.com/jobs/view/123456",
+        "scraped_at": "2026-02-15T10:00:00Z",
+        "seniority_level": "Mid-Senior level",
+        "employment_type": "Full-time"
+      }
+    }
+  ],
+  "returned": 1,
+  "total": 1,
+  "limit": 1
+}
+```
+
+## Composable Response Sections (query_jobs only)
+
+Control token usage with `include_*` flags:
+
+| Flag | Section | Use When |
+|------|---------|----------|
+| `include_description_insights` (default: True) | `description_insights` | User needs summary and requirements |
+| `include_application_tracking` | `application_tracking` | User wants to see application status |
+| `include_company_enrichment` | `company_enrichment` | User needs company info |
+| `include_metadata` | `metadata` | User needs URLs and timestamps |
+| `include_full_description` | `full_description` | User wants complete job description |
+| `include_complete_skills` | `complete_skills` | User wants full skills list |
+| `include_benefits` | `benefits` | User wants benefits info |
+| `include_employment_details` | `employment_details` | User wants workplace type, experience level |
+
+**Core** and **decision_making** sections are always included.
 
 ## Design Rationale
 
-**Why two tiers?**
-- **Search summaries** come from search result cards (10 jobs per page, fast)
-- **Full details** require individual page fetches (1 request per job, slow)
-- This allows scanning 20-30 job titles quickly, then fetching full details for only the 3-5 most promising ones
-- Saves HTTP requests and time compared to fetching all details upfront
+**Why two tools?**
+- **explore_latest_jobs**: Live scraping for fresh jobs when database is empty or stale
+- **query_jobs**: Instant queries with powerful filters for cached jobs
+- Database is populated by autonomous background scraping profiles
+- Both return full metadata - no separate detail fetch needed
+
+**Why no pagination?**
+- Simplified interface - users specify `limit` only
+- For more results, increase `limit` rather than managing offsets
+- Aligns with agent-friendly API design

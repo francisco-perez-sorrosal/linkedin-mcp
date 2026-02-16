@@ -21,63 +21,76 @@ Search for LinkedIn jobs and retrieve detailed metadata using the LinkedIn MCP s
 
 Extract from `$ARGUMENTS` or use defaults:
 
-- **query**: Job title or keywords (default: "AI Engineer or ML Engineer")
-- **location**: City or region (default: "San Francisco")
+- **keywords**: Job title or keywords (default: "AI Engineer or ML Engineer or Principal Research Engineer")
+- **location**: City or region (default: "San Francisco, CA")
 - **distance**: Search radius in miles (default: 25; valid: 10, 25, 35, 50, 75, 100)
-- **pages**: Number of result pages to scan (default: 1; max: 5)
+- **limit**: Number of jobs to retrieve (default: 1; max: 10 for exploration, 20 for query)
 
-If the user provides search terms in `$ARGUMENTS`, parse them naturally (e.g., "ML Engineer in New York" → query="ML Engineer", location="New York"). Otherwise, use the defaults above.
+If the user provides search terms in `$ARGUMENTS`, parse them naturally (e.g., "ML Engineer in New York" → keywords="ML Engineer", location="New York"). Otherwise, use the defaults above.
 
 ### Step 2: Search for Jobs
 
-Call `search_jobs` with the gathered parameters:
+Choose the appropriate tool:
 
+**For quick exploration** (live scraping, 1-10 recent jobs):
 ```python
-summaries = search_jobs(
-    query=query,
+results = explore_latest_jobs(
+    keywords=keywords,
     location=location,
     distance=distance,
-    num_pages=num_pages
+    limit=limit  # default: 1, max: 10
 )
 ```
 
-Results include job summaries: title, company, location, date, URL, job_id.
+**For database queries** (instant, cached jobs with filters):
+```python
+results = query_jobs(
+    keywords=keywords,
+    location=location,
+    remote_only=remote_only,
+    visa_sponsorship=visa_sponsorship,
+    limit=limit  # default: 20
+)
+```
+
+Both return full job metadata including description insights.
 
 See [references/tool-mapping.md](references/tool-mapping.md) for full tool documentation and optional filter parameters.
 
 ### Step 3: Present Results
 
-Display job summaries in a scannable table:
+Display jobs in a scannable format:
 
 ```
-| # | Job Title | Company | Location | Posted |
-|---|-----------|---------|----------|--------|
-| 1 | ML Engineer | Acme Corp | SF, CA | 2 days ago |
+| # | Job Title | Company | Location | Posted | Remote | Visa |
+|---|-----------|---------|----------|--------|--------|------|
+| 1 | ML Engineer | Acme Corp | SF, CA | 2 days ago | ✓ | ✓ |
 ```
 
-Ask the user which jobs they want full details on. Accept selection by number, range ("1-3"), or "all".
+For each job, show:
+- **Core**: title, company, location, posted date
+- **Decision-making**: salary range, remote eligibility, visa sponsorship, applicants
+- **Description insights** (if available): summary, key requirements, responsibilities
+- **Metadata** (if requested): job URL, seniority level, employment type
 
-### Step 4: Fetch Details
+### Step 4: Refine Search
 
-For selected jobs, call `get_job_details` with the selected job IDs.
-
-Present each job's full metadata:
-- Title, company, location
-- Job description (key sections summarized, not raw HTML dump)
-- Seniority level, employment type, job function
-- Salary range (if available)
-- Number of applicants
-- Skills and industries
+If the user wants different results:
+- Adjust filters (remote_only, visa_sponsorship, company, posted_after_hours)
+- Change location or distance
+- Modify keywords or increase limit
 
 ### Step 5: Next Actions
 
-After presenting details, offer:
-- "Tailor CV to this job" -- if the `cv-tailoring` skill is available
-- "Search with different parameters"
-- "Get details for more jobs from the list"
+After presenting results, offer:
+- "Refine search with different filters"
+- "Explore more recent jobs (live scraping)"
+- "Query database with different parameters"
 
 ## Notes
 
-- The LinkedIn MCP tools may take 10-30 seconds for detail retrieval (web scraping). Set expectations with the user.
-- Job IDs are cached server-side. Repeated searches are faster.
-- Maximum recommended batch: 20 jobs for detail retrieval.
+- **explore_latest_jobs()**: Live scraping, 10-30 seconds, returns 1-10 most recent jobs
+- **query_jobs()**: Instant database queries, cached jobs, composable filters
+- Database is populated by autonomous background scraping profiles
+- Both tools return full metadata - no separate detail fetch needed
+- Response sections are composable (use `include_*` flags to control token usage)
